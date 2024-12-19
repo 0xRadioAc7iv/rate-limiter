@@ -1,0 +1,31 @@
+{
+  "author": "Manav Gadhiya",
+  "name": "rate-limiter",
+  "description": "Rate limiter middleware for express",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "types": "types/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "nodejs",
+    "rate-limit",
+    "middleware",
+    "express"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "express": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "express": "^4.0.0"
+  }
+}
