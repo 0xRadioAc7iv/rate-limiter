@@ -2,44 +2,57 @@ import { RequestHandler } from "express";
 
 const rates = new Map<string, RateLimitData>();
 
-const resetRates = () => {
-  rates.clear();
-};
-
 export const rateLimiter = ({
-  limit = 5,
-  window = 60,
+  limit = DEFAULT_RATE_LIMIT,
+  window = DEFAULT_RATE_WINDOW,
+  cleanUpInterval = DEFAULT_CLEANUP_INTERVAL,
   message,
-  statusCode = 429,
+  statusCode = DEFAULT_STATUS_CODE,
 }: limiterOptions): RequestHandler => {
   setInterval(() => {
-    resetRates();
-  }, 1000 * window);
+    const now = Date.now();
+
+    for (const [ip, rateData] of rates) {
+      if (rateData.requests == 0 || now > rateData.expires) {
+        rates.delete(ip);
+      }
+    }
+  }, 1000 * cleanUpInterval);
 
   return (request, response, next) => {
     const requestTime = Date.now();
     const ip = request.ip as string;
     const rateData = rates.get(ip);
-    const { requests, lastRequest } = rateData
-      ? rateData
-      : { requests: 0, lastRequest: 0 };
 
-    rates.set(ip, { requests: requests + 1, lastRequest: requestTime });
-
-    if (requests > limit - 1) {
-      const retryAfterTimeInSeconds = Math.ceil(
-        (requestTime - lastRequest) / 1000
-      );
-
-      response.setHeader("Retry-After", retryAfterTimeInSeconds);
-      response.status(statusCode).json({
-        error: message
-          ? message
-          : `Rate limit exceeded. Try again in ${retryAfterTimeInSeconds} seconds.`,
+    if (!rateData) {
+      rates.set(ip, {
+        requests: 1,
+        expires: requestTime + window * 1000,
       });
     } else {
-      console.log(rates.get(ip));
-      next();
+      if (requestTime >= rateData.expires) {
+        rates.set(ip, {
+          requests: 1,
+          expires: requestTime + window * 1000,
+        });
+      } else {
+        if (rateData.requests > limit - 1) {
+          const timeLeft = Math.ceil((rateData.expires - requestTime) / 1000);
+
+          response.setHeader("Retry-After", timeLeft);
+          response.status(statusCode).json({
+            error: message
+              ? message
+              : `Rate limit exceeded. Try again in ${timeLeft} seconds.`,
+          });
+
+          return;
+        }
+
+        rates.set(ip, { ...rateData, requests: rateData.requests + 1 });
+      }
     }
+
+    next();
   };
 };

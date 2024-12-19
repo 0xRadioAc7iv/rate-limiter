@@ -12,6 +12,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "build": "tsc",
+    "link-lib": "npm run build && npm link",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
