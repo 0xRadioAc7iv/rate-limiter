@@ -10,7 +10,14 @@
     - [ ] draft-7
     - [ ] draft-8
   - [ ] Legacy Headers
-- [ ] skip (Function to determine whether or not this request counts towards a client’s quota)
+- [x] skip (Function to determine whether or not this request counts towards a client’s quota)
 - [x] skipFailedRequests (when true, failed requests (statusCode >= 400) aren't counted)
+- [ ] store logs
+  - [ ] locally
+  - [ ] database
+- [ ] Dynamic limits
+  - [ ] per User
+  - [ ] per Endpoint
+- [ ] Analytics Dashboard
 - [ ] Add tests
 - [ ] Publish to NPM
