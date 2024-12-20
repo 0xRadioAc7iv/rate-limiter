@@ -1,0 +1,17 @@
+- [x] Basic Rate limiting
+- [ ] Support for multiple types of user keys (for rate limit identification)
+  - [ ] Username
+  - [ ] API Keys
+  - [ ] JWTs
+- [ ] Support external stores
+  - [ ] Redis
+  - [ ] MongoDB
+  - [ ] PostgreSQL
+- [ ] Add Rate-limit Headers (see express-rate-limit)
+  - [ ] Standard Headers
+    - [ ] draft-6
+    - [ ] draft-7
+    - [ ] draft-8
+  - [ ] Legacy Headers
+- [ ] skip (Function to determine whether or not this request counts towards a client’s quota)
+- [ ] skipFailedRequests (when true, failed requests aren't counted)
