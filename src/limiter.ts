@@ -6,12 +6,16 @@ import {
   DEFAULT_RATE_WINDOW,
   DEFAULT_CLEANUP_INTERVAL,
   DEFAULT_STATUS_CODE,
+  DEFAULT_SKIP_FAILED_REQUESTS,
+  DEFAULT_KEY_SKIP_LIST,
 } from "./lib/constants";
 
 const rates = new Map<string, RateLimitData>();
 
 export const rateLimiter = ({
   key,
+  skip = DEFAULT_KEY_SKIP_LIST,
+  skipFailedRequests = DEFAULT_SKIP_FAILED_REQUESTS,
   limit = DEFAULT_RATE_LIMIT,
   window = DEFAULT_RATE_WINDOW,
   cleanUpInterval = DEFAULT_CLEANUP_INTERVAL,
@@ -20,7 +24,6 @@ export const rateLimiter = ({
 }: limiterOptions): RequestHandler => {
   setInterval(() => {
     const now = Date.now();
-
     for (const [ip, rateData] of rates) {
       if (rateData.requests == 0 || now > rateData.expires) {
         rates.delete(ip);
@@ -32,6 +35,8 @@ export const rateLimiter = ({
     const requestTime = Date.now();
     const identifierKey = key ? key(request, response) : (request.ip as string);
     const rateData = rates.get(identifierKey);
+
+    if (skip.includes(identifierKey)) return next();
 
     if (!rateData) {
       rates.set(identifierKey, {
@@ -64,6 +69,17 @@ export const rateLimiter = ({
         });
       }
     }
+
+    response.on("finish", () => {
+      const rateData = rates.get(identifierKey) as RateLimitData;
+
+      if (skipFailedRequests && response.statusCode >= 400) {
+        rates.set(identifierKey, {
+          ...rateData,
+          requests: rateData.requests - 1,
+        });
+      }
+    });
 
     next();
   };

@@ -11,4 +11,6 @@
     - [ ] draft-8
   - [ ] Legacy Headers
 - [ ] skip (Function to determine whether or not this request counts towards a client’s quota)
-- [ ] skipFailedRequests (when true, failed requests (statusCode >= 400) aren't counted)
+- [x] skipFailedRequests (when true, failed requests (statusCode >= 400) aren't counted)
+- [ ] Add tests
+- [ ] Publish to NPM

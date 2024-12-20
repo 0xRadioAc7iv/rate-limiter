@@ -47,6 +47,8 @@ app.listen(3000, () => {
 - `cleanUpInterval` Time Interval (in seconds) to cleanup stale rate data. Default is 30.
 - `message` Message to send when rate limit is hit.
 - `status` Status code to send when rate limit is hit. Default is 429.
+- `skip` Request from keys in this array have no limits. Default is [].
+- `skipFailedRequests` If true, Failed requests are not counted.
 
 ## Contributing
 
