@@ -1,8 +1,17 @@
 import { RequestHandler } from "express";
 
+import { limiterOptions, RateLimitData } from "./lib/types";
+import {
+  DEFAULT_RATE_LIMIT,
+  DEFAULT_RATE_WINDOW,
+  DEFAULT_CLEANUP_INTERVAL,
+  DEFAULT_STATUS_CODE,
+} from "./lib/constants";
+
 const rates = new Map<string, RateLimitData>();
 
 export const rateLimiter = ({
+  key,
   limit = DEFAULT_RATE_LIMIT,
   window = DEFAULT_RATE_WINDOW,
   cleanUpInterval = DEFAULT_CLEANUP_INTERVAL,
@@ -21,17 +30,17 @@ export const rateLimiter = ({
 
   return (request, response, next) => {
     const requestTime = Date.now();
-    const ip = request.ip as string;
-    const rateData = rates.get(ip);
+    const identifierKey = key ? key(request, response) : (request.ip as string);
+    const rateData = rates.get(identifierKey);
 
     if (!rateData) {
-      rates.set(ip, {
+      rates.set(identifierKey, {
         requests: 1,
         expires: requestTime + window * 1000,
       });
     } else {
       if (requestTime >= rateData.expires) {
-        rates.set(ip, {
+        rates.set(identifierKey, {
           requests: 1,
           expires: requestTime + window * 1000,
         });
@@ -49,7 +58,10 @@ export const rateLimiter = ({
           return;
         }
 
-        rates.set(ip, { ...rateData, requests: rateData.requests + 1 });
+        rates.set(identifierKey, {
+          ...rateData,
+          requests: rateData.requests + 1,
+        });
       }
     }
 

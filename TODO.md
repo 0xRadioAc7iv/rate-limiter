@@ -1,8 +1,5 @@
 - [x] Basic Rate limiting
-- [ ] Support for multiple types of user keys (for rate limit identification)
-  - [ ] Username
-  - [ ] API Keys
-  - [ ] JWTs
+- [x] Support for multiple types of user keys (for rate limit identification)
 - [ ] Support external stores
   - [ ] Redis
   - [ ] MongoDB
@@ -14,4 +11,4 @@
     - [ ] draft-8
   - [ ] Legacy Headers
 - [ ] skip (Function to determine whether or not this request counts towards a client’s quota)
-- [ ] skipFailedRequests (when true, failed requests aren't counted)
+- [ ] skipFailedRequests (when true, failed requests (statusCode >= 400) aren't counted)
