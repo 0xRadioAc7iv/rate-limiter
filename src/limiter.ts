@@ -1,14 +1,15 @@
 import { RequestHandler } from "express";
 
-import { limiterOptions, RateLimitData } from "./lib/types";
+import { limiterOptions, RateLimitData } from "./types";
 import {
-  DEFAULT_RATE_LIMIT,
   DEFAULT_RATE_WINDOW,
   DEFAULT_CLEANUP_INTERVAL,
   DEFAULT_STATUS_CODE,
   DEFAULT_SKIP_FAILED_REQUESTS,
   DEFAULT_KEY_SKIP_LIST,
+  DEFAULT_LEGACY_HEADERS,
 } from "./lib/constants";
+import { setRateLimitHeaders } from "./utils/headers";
 
 const rates = new Map<string, RateLimitData>();
 
@@ -16,11 +17,12 @@ export const rateLimiter = ({
   key,
   skip = DEFAULT_KEY_SKIP_LIST,
   skipFailedRequests = DEFAULT_SKIP_FAILED_REQUESTS,
-  limit = DEFAULT_RATE_LIMIT,
+  limit,
   window = DEFAULT_RATE_WINDOW,
   cleanUpInterval = DEFAULT_CLEANUP_INTERVAL,
   message,
   statusCode = DEFAULT_STATUS_CODE,
+  legacyHeaders = DEFAULT_LEGACY_HEADERS,
 }: limiterOptions): RequestHandler => {
   setInterval(() => {
     const now = Date.now();
@@ -36,7 +38,15 @@ export const rateLimiter = ({
     const identifierKey = key ? key(request, response) : (request.ip as string);
     const rateData = rates.get(identifierKey);
 
-    if (skip.includes(identifierKey)) return next();
+    if (skip && skip.includes(identifierKey)) return next();
+
+    setRateLimitHeaders({
+      res: response,
+      limit,
+      requests: rateData?.requests || 1,
+      expires: rateData?.expires || requestTime + window * 1000,
+      legacyHeaders,
+    });
 
     if (!rateData) {
       rates.set(identifierKey, {
@@ -53,7 +63,10 @@ export const rateLimiter = ({
         if (rateData.requests > limit - 1) {
           const timeLeft = Math.ceil((rateData.expires - requestTime) / 1000);
 
-          response.setHeader("Retry-After", timeLeft);
+          if (legacyHeaders) {
+            response.setHeader("Retry-After", timeLeft);
+          }
+
           response.status(statusCode).json({
             error: message
               ? message
