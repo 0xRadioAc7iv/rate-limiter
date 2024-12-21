@@ -6,18 +6,21 @@
   - [ ] PostgreSQL
 - [ ] Add Rate-limit Headers (see express-rate-limit)
   - [ ] Standard Headers
-    - [ ] draft-6
+    - [ ] draft-6 (used by default if standardHeaders is true, ignores legacyHeaders)
     - [ ] draft-7
     - [ ] draft-8
-  - [ ] Legacy Headers
+  - [x] Legacy Headers (true by default)
 - [x] skip (Function to determine whether or not this request counts towards a client’s quota)
 - [x] skipFailedRequests (when true, failed requests (statusCode >= 400) aren't counted)
 - [ ] store logs
   - [ ] locally
+    - [ ] txt files
+    - [ ] Winston support
   - [ ] database
 - [ ] Dynamic limits
-  - [ ] per User
+  - [ ] per user role
   - [ ] per Endpoint
 - [ ] Analytics Dashboard
 - [ ] Add tests
+- [ ] Update & Improve [README.md](README.md)
 - [ ] Publish to NPM
