@@ -23,6 +23,7 @@ export const rateLimiter = ({
   message,
   statusCode = DEFAULT_STATUS_CODE,
   legacyHeaders = DEFAULT_LEGACY_HEADERS,
+  standardHeaders,
 }: limiterOptions): RequestHandler => {
   setInterval(() => {
     const now = Date.now();
@@ -46,6 +47,9 @@ export const rateLimiter = ({
       requests: rateData?.requests || 1,
       expires: rateData?.expires || requestTime + window * 1000,
       legacyHeaders,
+      standardHeaders,
+      window,
+      requestTime,
     });
 
     if (!rateData) {

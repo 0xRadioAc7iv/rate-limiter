@@ -4,11 +4,10 @@
   - [ ] Redis
   - [ ] MongoDB
   - [ ] PostgreSQL
-- [ ] Add Rate-limit Headers (see express-rate-limit)
-  - [ ] Standard Headers
-    - [ ] draft-6 (used by default if standardHeaders is true, ignores legacyHeaders)
-    - [ ] draft-7
-    - [ ] draft-8
+- [x] Add Rate-limit Headers (see express-rate-limit)
+  - [x] Standard Headers
+    - [x] draft-6
+    - [x] draft-7
   - [x] Legacy Headers (true by default)
 - [x] skip (Function to determine whether or not this request counts towards a client’s quota)
 - [x] skipFailedRequests (when true, failed requests (statusCode >= 400) aren't counted)
