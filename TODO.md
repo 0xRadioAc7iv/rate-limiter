@@ -3,7 +3,6 @@
 - [ ] Support external stores
   - [ ] Redis
   - [ ] MongoDB
-  - [ ] PostgreSQL
 - [x] Add Rate-limit Headers (see express-rate-limit)
   - [x] Standard Headers
     - [x] draft-6
@@ -11,15 +10,9 @@
   - [x] Legacy Headers (true by default)
 - [x] skip (Function to determine whether or not this request counts towards a client’s quota)
 - [x] skipFailedRequests (when true, failed requests (statusCode >= 400) aren't counted)
-- [ ] store logs
-  - [ ] locally
-    - [ ] txt files
-    - [ ] Winston support
-  - [ ] database
-- [ ] Dynamic limits
-  - [ ] per user role
-  - [ ] per Endpoint
+- [x] store logs (local txt files)
+- [x] Dynamic limits (custom function)
 - [ ] Analytics Dashboard
-- [ ] Add tests
+- [ ] Write Tests
 - [ ] Update & Improve [README.md](README.md)
 - [ ] Publish to NPM

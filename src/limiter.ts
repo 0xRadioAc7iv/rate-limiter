@@ -1,5 +1,4 @@
 import { RequestHandler } from "express";
-
 import { limiterOptions, RateLimitData } from "./types";
 import {
   DEFAULT_RATE_WINDOW,
@@ -8,8 +7,10 @@ import {
   DEFAULT_SKIP_FAILED_REQUESTS,
   DEFAULT_KEY_SKIP_LIST,
   DEFAULT_LEGACY_HEADERS,
+  DEFAULT_RATE_LIMIT,
 } from "./lib/constants";
 import { setRateLimitHeaders } from "./utils/headers";
+import { createDirectoryIfNotExists, writeLogs } from "./utils/logs";
 
 const rates = new Map<string, RateLimitData>();
 
@@ -17,13 +18,13 @@ export const rateLimiter = ({
   key,
   skip = DEFAULT_KEY_SKIP_LIST,
   skipFailedRequests = DEFAULT_SKIP_FAILED_REQUESTS,
-  limit,
-  window = DEFAULT_RATE_WINDOW,
   cleanUpInterval = DEFAULT_CLEANUP_INTERVAL,
   message,
   statusCode = DEFAULT_STATUS_CODE,
   legacyHeaders = DEFAULT_LEGACY_HEADERS,
   standardHeaders,
+  logs,
+  limitOptions,
 }: limiterOptions): RequestHandler => {
   setInterval(() => {
     const now = Date.now();
@@ -34,6 +35,12 @@ export const rateLimiter = ({
     }
   }, 1000 * cleanUpInterval);
 
+  if (logs) createDirectoryIfNotExists(logs.directory);
+
+  const { max, window } = limitOptions
+    ? limitOptions()
+    : { max: DEFAULT_RATE_LIMIT, window: DEFAULT_RATE_WINDOW };
+
   return (request, response, next) => {
     const requestTime = Date.now();
     const identifierKey = key ? key(request, response) : (request.ip as string);
@@ -43,7 +50,7 @@ export const rateLimiter = ({
 
     setRateLimitHeaders({
       res: response,
-      limit,
+      limit: max,
       requests: rateData?.requests || 1,
       expires: rateData?.expires || requestTime + window * 1000,
       legacyHeaders,
@@ -64,7 +71,7 @@ export const rateLimiter = ({
           expires: requestTime + window * 1000,
         });
       } else {
-        if (rateData.requests > limit - 1) {
+        if (rateData.requests > max - 1) {
           const timeLeft = Math.ceil((rateData.expires - requestTime) / 1000);
 
           if (legacyHeaders) {
@@ -96,6 +103,8 @@ export const rateLimiter = ({
           requests: rateData.requests - 1,
         });
       }
+
+      if (logs) writeLogs(logs.directory, request);
     });
 
     next();
