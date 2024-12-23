@@ -1,5 +1,15 @@
-import { DEFAULT_LEGACY_HEADERS } from "../lib/constants";
-import { RateLimitHeadersArgs } from "../types";
+import { Request, Response } from "express";
+import {
+  DEFAULT_LEGACY_HEADERS,
+  DEFAULT_RATE_LIMIT,
+  DEFAULT_RATE_WINDOW,
+} from "../lib/constants";
+import {
+  RateLimitData,
+  RateLimitHeadersArgs,
+  RateLimitOptions,
+  storeClientType,
+} from "../types";
 
 export const setRateLimitHeaders = ({
   res,
@@ -41,4 +51,43 @@ export const setRateLimitHeaders = ({
     res.setHeader("X-RateLimit-Remaining", remainingValue);
     res.setHeader("X-RateLimit-Reset", resetTime);
   }
+};
+
+export const setRateLimitHeadersData = async (
+  limitOptions: (request?: Request) => RateLimitOptions,
+  request: Request,
+  response: Response,
+  key: ((req: Request, res: Response) => string) | undefined,
+  clientStore: Map<string, RateLimitData> | storeClientType
+): Promise<{
+  max: number;
+  window: number;
+  requestTime: number;
+  identifierKey: string;
+  rateData: RateLimitData | undefined;
+}> => {
+  const { max, window } = limitOptions
+    ? limitOptions(request)
+    : { max: DEFAULT_RATE_LIMIT, window: DEFAULT_RATE_WINDOW };
+
+  const requestTime = Date.now();
+  const identifierKey = key ? key(request, response) : (request.ip as string);
+  let rateLimitData: RateLimitData | undefined;
+
+  if (clientStore instanceof Map) {
+    rateLimitData = clientStore.get(identifierKey);
+  } else {
+    const rateLimitDataString = await clientStore.get(identifierKey);
+    rateLimitData = rateLimitDataString
+      ? (JSON.parse(rateLimitDataString as string) as RateLimitData)
+      : undefined;
+  }
+
+  return {
+    max,
+    window,
+    requestTime,
+    identifierKey,
+    rateData: rateLimitData,
+  };
 };

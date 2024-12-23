@@ -1,6 +1,13 @@
 import { Request, Response } from "express";
+import { RedisClientType } from "redis";
 
 export type standardHeadersType = "draft-6" | "draft-7";
+
+export type storeClientType = RedisClientType;
+
+export type storeType = {
+  client: storeClientType;
+};
 
 export type logsOptions = {
   directory: string; // Directory to store logs
@@ -18,10 +25,11 @@ export type limiterOptions = {
   message?: string; // Message to send on hitting the Rate limit
   statusCode?: number; // Status code to send on hitting the Rate limit
   cleanUpInterval?: number; // Interval to cleanup the rate data
-  legacyHeaders?: boolean; // Use X-RateLimit-* headers instead of Retry-After
+  legacyHeaders?: boolean; // Use X-RateLimit-* headers along with Retry-After
   standardHeaders?: standardHeadersType; // Use RateLimit-* headers
   logs?: logsOptions; // Enable logs
-  limitOptions: () => RateLimitOptions;
+  limitOptions: (request?: Request) => RateLimitOptions;
+  store?: storeType; // Store to use for rate limiting
 };
 
 export type RateLimitData = {

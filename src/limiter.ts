@@ -1,18 +1,19 @@
 import { RequestHandler } from "express";
 import { limiterOptions, RateLimitData } from "./types";
 import {
-  DEFAULT_RATE_WINDOW,
   DEFAULT_CLEANUP_INTERVAL,
   DEFAULT_STATUS_CODE,
   DEFAULT_SKIP_FAILED_REQUESTS,
   DEFAULT_KEY_SKIP_LIST,
   DEFAULT_LEGACY_HEADERS,
-  DEFAULT_RATE_LIMIT,
 } from "./lib/constants";
-import { setRateLimitHeaders } from "./utils/headers";
+import { setRateLimitHeadersData, setRateLimitHeaders } from "./utils/headers";
 import { createDirectoryIfNotExists, writeLogs } from "./utils/logs";
-
-const rates = new Map<string, RateLimitData>();
+import {
+  checkAndSetRateLimitData,
+  modifyResponseIfNeededAndWriteLogs,
+  setClientStore,
+} from "./utils/store";
 
 export const rateLimiter = ({
   key,
@@ -25,26 +26,21 @@ export const rateLimiter = ({
   standardHeaders,
   logs,
   limitOptions,
+  store,
 }: limiterOptions): RequestHandler => {
-  setInterval(() => {
-    const now = Date.now();
-    for (const [ip, rateData] of rates) {
-      if (rateData.requests == 0 || now > rateData.expires) {
-        rates.delete(ip);
-      }
-    }
-  }, 1000 * cleanUpInterval);
+  const clientStore = setClientStore(cleanUpInterval, store);
 
   if (logs) createDirectoryIfNotExists(logs.directory);
 
-  const { max, window } = limitOptions
-    ? limitOptions()
-    : { max: DEFAULT_RATE_LIMIT, window: DEFAULT_RATE_WINDOW };
-
-  return (request, response, next) => {
-    const requestTime = Date.now();
-    const identifierKey = key ? key(request, response) : (request.ip as string);
-    const rateData = rates.get(identifierKey);
+  return async (request, response, next) => {
+    const { max, window, requestTime, identifierKey, rateData } =
+      await setRateLimitHeadersData(
+        limitOptions,
+        request,
+        response,
+        key,
+        clientStore
+      );
 
     if (skip && skip.includes(identifierKey)) return next();
 
@@ -59,53 +55,31 @@ export const rateLimiter = ({
       requestTime,
     });
 
-    if (!rateData) {
-      rates.set(identifierKey, {
-        requests: 1,
-        expires: requestTime + window * 1000,
-      });
-    } else {
-      if (requestTime >= rateData.expires) {
-        rates.set(identifierKey, {
-          requests: 1,
-          expires: requestTime + window * 1000,
-        });
-      } else {
-        if (rateData.requests > max - 1) {
-          const timeLeft = Math.ceil((rateData.expires - requestTime) / 1000);
-
-          if (legacyHeaders) {
-            response.setHeader("Retry-After", timeLeft);
-          }
-
-          response.status(statusCode).json({
-            error: message
-              ? message
-              : `Rate limit exceeded. Try again in ${timeLeft} seconds.`,
-          });
-
-          return;
-        }
-
-        rates.set(identifierKey, {
-          ...rateData,
-          requests: rateData.requests + 1,
-        });
-      }
+    if (
+      checkAndSetRateLimitData(
+        max,
+        window,
+        requestTime,
+        identifierKey,
+        rateData,
+        message,
+        statusCode,
+        legacyHeaders,
+        response,
+        clientStore
+      )
+    ) {
+      return;
     }
 
-    response.on("finish", () => {
-      const rateData = rates.get(identifierKey) as RateLimitData;
-
-      if (skipFailedRequests && response.statusCode >= 400) {
-        rates.set(identifierKey, {
-          ...rateData,
-          requests: rateData.requests - 1,
-        });
-      }
-
-      if (logs) writeLogs(logs.directory, request);
-    });
+    response = modifyResponseIfNeededAndWriteLogs(
+      request,
+      response,
+      logs,
+      identifierKey,
+      skipFailedRequests,
+      clientStore
+    );
 
     next();
   };

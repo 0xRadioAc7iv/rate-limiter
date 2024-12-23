@@ -1,9 +1,7 @@
 - [x] Basic Rate limiting
 - [x] Support for multiple types of user keys (for rate limit identification)
-- [ ] Support external stores
-  - [ ] Redis
-  - [ ] MongoDB
-- [x] Add Rate-limit Headers (see express-rate-limit)
+- [x] Redis support (External store) (Takes a big performance hit though)
+- [x] Add Rate-limit Headers
   - [x] Standard Headers
     - [x] draft-6
     - [x] draft-7
@@ -14,5 +12,12 @@
 - [x] Dynamic limits (custom function)
 - [ ] Analytics Dashboard
 - [ ] Write Tests
+- [ ] Compare performance with express-rate-limit
+- [ ] Refactor code
+- [ ] Document Code with JSDOC
 - [ ] Update & Improve [README.md](README.md)
 - [ ] Publish to NPM
+
+## Fix Issues
+
+- [ ] Main Rate Limit Headers being sent when rate limit is reached
