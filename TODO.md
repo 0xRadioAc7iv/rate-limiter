@@ -13,8 +13,8 @@
 - [ ] Write Tests
 - [ ] Compare performance with express-rate-limit
 - [x] Refactor code
-- [ ] Document Code with JSDOC
-- [ ] Update & Improve [README.md](README.md)
+- [x] JSDOC Documentation
+- [x] Update & Improve [README.md](README.md)
 - [ ] Publish to NPM
 
 ## Fix Issues
