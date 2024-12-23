@@ -8,8 +8,11 @@ import {
   RateLimitData,
   RateLimitHeadersArgs,
   RateLimitOptions,
+  standardHeadersType,
   storeClientType,
 } from "../types";
+import { RedisClientType } from "redis";
+import { getRateLimitData } from "./store";
 
 export const setRateLimitHeaders = ({
   res,
@@ -23,33 +26,31 @@ export const setRateLimitHeaders = ({
 }: RateLimitHeadersArgs) => {
   const limitValue = limit.toString();
   const remainingValue = (limit - requests).toString();
-  const resetTime = Math.abs(Math.ceil((expires - requestTime) / 1000))
-    .toString()
-    .toString();
+  const resetTime = Math.abs(
+    Math.ceil((expires - requestTime) / 1000)
+  ).toString();
 
   if (standardHeaders) {
-    legacyHeaders = false;
+    const headers = constructHeaders(
+      standardHeaders,
+      limitValue,
+      remainingValue,
+      resetTime
+    );
+
     res.setHeader("RateLimit-Policy", `${limit};w=${window}`);
-
-    if (standardHeaders === "draft-6") {
-      res.setHeader("RateLimit-Limit", limitValue);
-      res.setHeader("RateLimit-Remaining", remainingValue);
-      res.setHeader("RateLimit-Reset", resetTime);
-    }
-
-    if (standardHeaders === "draft-7") {
-      res.setHeader("limit", limitValue);
-      res.setHeader("remaining", remainingValue);
-      res.setHeader("reset", resetTime);
-    }
-
+    res.setHeaders(headers);
     return;
   }
 
   if (legacyHeaders) {
-    res.setHeader("X-RateLimit-Limit", limitValue);
-    res.setHeader("X-RateLimit-Remaining", remainingValue);
-    res.setHeader("X-RateLimit-Reset", resetTime);
+    const headers = constructHeaders(
+      "legacy",
+      limitValue,
+      remainingValue,
+      resetTime
+    );
+    res.setHeaders(headers);
   }
 };
 
@@ -58,7 +59,7 @@ export const setRateLimitHeadersData = async (
   request: Request,
   response: Response,
   key: ((req: Request, res: Response) => string) | undefined,
-  clientStore: Map<string, RateLimitData> | storeClientType
+  clientStore: storeClientType
 ): Promise<{
   max: number;
   window: number;
@@ -69,25 +70,40 @@ export const setRateLimitHeadersData = async (
   const { max, window } = limitOptions
     ? limitOptions(request)
     : { max: DEFAULT_RATE_LIMIT, window: DEFAULT_RATE_WINDOW };
-
   const requestTime = Date.now();
   const identifierKey = key ? key(request, response) : (request.ip as string);
-  let rateLimitData: RateLimitData | undefined;
-
-  if (clientStore instanceof Map) {
-    rateLimitData = clientStore.get(identifierKey);
-  } else {
-    const rateLimitDataString = await clientStore.get(identifierKey);
-    rateLimitData = rateLimitDataString
-      ? (JSON.parse(rateLimitDataString as string) as RateLimitData)
-      : undefined;
-  }
+  const rateData = await getRateLimitData(clientStore, identifierKey);
 
   return {
     max,
     window,
     requestTime,
     identifierKey,
-    rateData: rateLimitData,
+    rateData,
   };
+};
+
+const constructHeaders = (
+  headersType: standardHeadersType | "legacy",
+  limit: string,
+  remaining: string,
+  reset: string
+) => {
+  const headers = new Map<string, string>([]);
+
+  if (headersType === "draft-6") {
+    headers.set("RateLimit-Limit", limit);
+    headers.set("RateLimit-Remaining", remaining);
+    headers.set("RateLimit-Reset", reset);
+  } else if (headersType === "draft-7") {
+    headers.set("limit", limit);
+    headers.set("remaining", remaining);
+    headers.set("reset", reset);
+  } else {
+    headers.set("X-RateLimit-Limit", limit);
+    headers.set("X-RateLimit-Remaining", remaining);
+    headers.set("X-RateLimit-Reset", reset);
+  }
+
+  return headers;
 };

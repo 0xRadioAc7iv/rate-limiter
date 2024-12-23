@@ -10,10 +10,9 @@
 - [x] skipFailedRequests (when true, failed requests (statusCode >= 400) aren't counted)
 - [x] store logs (local txt files)
 - [x] Dynamic limits (custom function)
-- [ ] Analytics Dashboard
 - [ ] Write Tests
 - [ ] Compare performance with express-rate-limit
-- [ ] Refactor code
+- [x] Refactor code
 - [ ] Document Code with JSDOC
 - [ ] Update & Improve [README.md](README.md)
 - [ ] Publish to NPM
@@ -21,3 +20,4 @@
 ## Fix Issues
 
 - [ ] Main Rate Limit Headers being sent when rate limit is reached
+- [ ] Set Expiry on Redis data

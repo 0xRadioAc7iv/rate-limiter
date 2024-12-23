@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { limiterOptions, RateLimitData } from "./types";
+import { limiterOptions } from "./types";
 import {
   DEFAULT_CLEANUP_INTERVAL,
   DEFAULT_STATUS_CODE,
@@ -8,7 +8,7 @@ import {
   DEFAULT_LEGACY_HEADERS,
 } from "./lib/constants";
 import { setRateLimitHeadersData, setRateLimitHeaders } from "./utils/headers";
-import { createDirectoryIfNotExists, writeLogs } from "./utils/logs";
+import { createDirectoryIfNotExists } from "./utils/logs";
 import {
   checkAndSetRateLimitData,
   modifyResponseIfNeededAndWriteLogs,
@@ -55,22 +55,20 @@ export const rateLimiter = ({
       requestTime,
     });
 
-    if (
-      checkAndSetRateLimitData(
-        max,
-        window,
-        requestTime,
-        identifierKey,
-        rateData,
-        message,
-        statusCode,
-        legacyHeaders,
-        response,
-        clientStore
-      )
-    ) {
-      return;
-    }
+    const shouldReturn = await checkAndSetRateLimitData(
+      max,
+      window,
+      requestTime,
+      identifierKey,
+      rateData,
+      message,
+      statusCode,
+      legacyHeaders,
+      response,
+      clientStore
+    );
+
+    if (shouldReturn) return;
 
     response = modifyResponseIfNeededAndWriteLogs(
       request,

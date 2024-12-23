@@ -6,10 +6,9 @@ import {
   storeType,
 } from "../types";
 import { writeLogs } from "./logs";
+import { RedisClientType } from "redis";
 
 export const setClientStore = (cleanUpInterval: number, store?: storeType) => {
-  let clientStore: storeClientType;
-
   if (!store) {
     const localStore = new Map<string, RateLimitData>();
 
@@ -23,11 +22,9 @@ export const setClientStore = (cleanUpInterval: number, store?: storeType) => {
     }, 1000 * cleanUpInterval);
 
     return localStore;
-  } else {
-    clientStore = store.client;
   }
 
-  return clientStore;
+  return store.client;
 };
 
 export const modifyResponseIfNeededAndWriteLogs = (
@@ -36,42 +33,17 @@ export const modifyResponseIfNeededAndWriteLogs = (
   logs: logsOptions | undefined,
   identifierKey: string,
   skipFailedRequests: boolean,
-  store: Map<string, RateLimitData> | storeClientType
+  store: storeClientType
 ): Response => {
-  let rateLimitData: RateLimitData;
-
   response.on("finish", async () => {
-    if (store instanceof Map) {
-      rateLimitData = store.get(identifierKey) as RateLimitData;
-
-      if (skipFailedRequests && response.statusCode >= 400) {
-        store.set(identifierKey, {
-          ...rateLimitData,
-          requests: rateLimitData.requests - 1,
-        });
-      }
-    } else {
-      const rateLimitDataString = await store.get(identifierKey);
-      rateLimitData = JSON.parse(
-        rateLimitDataString as string
-      ) as RateLimitData;
-
-      if (skipFailedRequests && response.statusCode >= 400) {
-        const updatedData = {
-          ...rateLimitData,
-          requests: rateLimitData.requests - 1,
-        };
-        store.set(identifierKey, JSON.stringify(updatedData));
-      }
-    }
-
+    await modifyResponse(store, identifierKey, skipFailedRequests, response);
     if (logs) writeLogs(logs.directory, request);
   });
 
   return response;
 };
 
-export const checkAndSetRateLimitData = (
+export const checkAndSetRateLimitData = async (
   max: number,
   window: number,
   requestTime: number,
@@ -81,26 +53,18 @@ export const checkAndSetRateLimitData = (
   statusCode: number,
   legacyHeaders: boolean,
   response: Response,
-  store: Map<string, RateLimitData> | storeClientType
-): true | void => {
+  store: storeClientType
+): Promise<true | void> => {
   const firstRequestData = {
     requests: 1,
     expires: requestTime + window * 1000,
   };
 
   if (!rateData) {
-    if (store instanceof Map) {
-      store.set(identifierKey, firstRequestData);
-    } else {
-      store.set(identifierKey, JSON.stringify(firstRequestData));
-    }
+    await setRateLimitData(store, identifierKey, firstRequestData);
   } else {
     if (requestTime >= rateData.expires) {
-      if (store instanceof Map) {
-        store.set(identifierKey, firstRequestData);
-      } else {
-        store.set(identifierKey, JSON.stringify(firstRequestData));
-      }
+      await setRateLimitData(store, identifierKey, firstRequestData);
     } else {
       if (rateData.requests > max - 1) {
         const timeLeft = Math.ceil((rateData.expires - requestTime) / 1000);
@@ -118,20 +82,58 @@ export const checkAndSetRateLimitData = (
         return true;
       }
 
-      if (store instanceof Map) {
-        store.set(identifierKey, {
-          ...rateData,
-          requests: rateData.requests + 1,
-        });
-      } else {
-        store.set(
-          identifierKey,
-          JSON.stringify({
-            ...rateData,
-            requests: rateData.requests + 1,
-          })
-        );
-      }
+      await setRateLimitData(store, identifierKey, {
+        ...rateData,
+        requests: rateData.requests + 1,
+      });
     }
+  }
+};
+
+export const getRateLimitData = async (
+  store: storeClientType,
+  identifierKey: string
+) => {
+  if (store instanceof Map) {
+    return store.get(identifierKey);
+  }
+
+  const rateLimitDataString = await store.get(identifierKey);
+  const rateLimitData = rateLimitDataString
+    ? (JSON.parse(rateLimitDataString as string) as RateLimitData)
+    : undefined;
+
+  return rateLimitData;
+};
+
+const setRateLimitData = async (
+  store: storeClientType,
+  identifierKey: string,
+  rateLimitData: RateLimitData
+) => {
+  if (store instanceof Map) {
+    store.set(identifierKey, rateLimitData);
+    return;
+  }
+
+  await store.set(identifierKey, JSON.stringify(rateLimitData));
+};
+
+export const modifyResponse = async (
+  store: storeClientType,
+  identifierKey: string,
+  skipFailedRequests: boolean,
+  response: Response
+) => {
+  const rateLimitData = (await getRateLimitData(
+    store,
+    identifierKey
+  )) as RateLimitData;
+
+  if (skipFailedRequests && response.statusCode >= 400) {
+    setRateLimitData(store, identifierKey, {
+      ...rateLimitData,
+      requests: rateLimitData.requests - 1,
+    });
   }
 };

@@ -2,7 +2,7 @@
   "author": "Manav Gadhiya",
   "name": "rate-limiter",
   "description": "Custom Rate limiter middleware for express built for learning purposes",
-  "version": "0.6.0",
+  "version": "1.0.0",
   "main": "dist/index.js",
   "types": "types/index.d.ts",
   "files": [

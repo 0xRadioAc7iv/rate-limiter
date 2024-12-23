@@ -3,10 +3,10 @@ import { RedisClientType } from "redis";
 
 export type standardHeadersType = "draft-6" | "draft-7";
 
-export type storeClientType = RedisClientType;
+export type storeClientType = Map<string, RateLimitData> | RedisClientType;
 
 export type storeType = {
-  client: storeClientType;
+  client: RedisClientType;
 };
 
 export type logsOptions = {
