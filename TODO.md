@@ -6,7 +6,7 @@
     - [x] draft-6
     - [x] draft-7
   - [x] Legacy Headers (true by default)
-- [x] skip (Function to determine whether or not this request counts towards a client’s quota)
+- [x] skip (Function to determine whether or not this request counts towards a client's quota)
 - [x] skipFailedRequests (when true, failed requests (statusCode >= 400) aren't counted)
 - [x] store logs (local txt files)
 - [x] Dynamic limits (custom function)
@@ -15,9 +15,9 @@
 - [x] Refactor code
 - [x] JSDOC Documentation
 - [x] Update & Improve [README.md](README.md)
-- [ ] Publish to NPM
+- [x] Publish to NPM
 
 ## Fix Issues
 
-- [ ] Main Rate Limit Headers being sent when rate limit is reached
-- [ ] Set Expiry on Redis data
+- [x] Main Rate Limit Headers being sent when rate limit is reached
+- [x] Set Expiry on Redis data

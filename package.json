@@ -1,12 +1,13 @@
 {
   "author": "Manav Gadhiya",
-  "name": "rate-limiter",
+  "name": "@radioac7iv/rate-limiter",
   "description": "Custom Rate limiter middleware for express built for learning purposes",
   "version": "1.0.0",
   "main": "dist/index.js",
   "types": "types/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "types"
   ],
   "scripts": {
     "build": "tsc",
@@ -27,5 +28,8 @@
     "@types/express": "^5.0.0",
     "express": "^4.11.0",
     "redis": "^4.7.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

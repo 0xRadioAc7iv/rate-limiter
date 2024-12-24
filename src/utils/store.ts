@@ -166,7 +166,10 @@ const setRateLimitData = async (
     return;
   }
 
-  await store.set(identifierKey, JSON.stringify(rateLimitData));
+  await store.set(identifierKey, JSON.stringify(rateLimitData), {
+    EX: 60,
+    NX: true,
+  });
 };
 
 /**
