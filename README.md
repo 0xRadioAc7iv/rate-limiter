@@ -17,15 +17,6 @@ The Rate Limiter is an open-source NPM package designed for managing request rat
 
 ## Installation
 
-Clone the repository and navigate into the project directory:
-
-```bash
-git clone https://github.com/0xRadioAc7iv/rate-limiter.git
-cd rate-limiter
-```
-
-Or install via NPM:
-
 ```bash
 npm install rate-limiter
 ```
