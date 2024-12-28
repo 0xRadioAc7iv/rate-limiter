@@ -120,7 +120,7 @@ export const setRateLimitHeadersData = async (
  * @param {string} reset - Time (in seconds) until the rate limit resets.
  * @returns {Map<string, string>} - Map of constructed headers.
  */
-const constructHeaders = (
+export const constructHeaders = (
   headersType: standardHeadersType | "legacy",
   limit: string,
   remaining: string,
