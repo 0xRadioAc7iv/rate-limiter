@@ -1,7 +1,4 @@
-import {
-  constructHeaders,
-  setRateLimitHeadersData,
-} from "../src/utils/headers";
+import { constructHeaders } from "../src/utils/headers";
 
 describe("headers", () => {
   it("returns legacy headers", () => {
