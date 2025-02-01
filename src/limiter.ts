@@ -14,6 +14,9 @@ import {
   modifyResponseIfNeededAndWriteLogs,
   setClientStore,
 } from "./utils/store";
+// import { MemoryStore } from "./store";
+// import { LoggerClass } from "./types";
+// import { Logger } from "./logger";
 
 /**
  * Creates a rate-limiting middleware for Express.js.
@@ -49,6 +52,17 @@ export const rateLimiter = ({
   limitOptions,
   store,
 }: limiterOptions): RequestHandler => {
+  // let store;
+
+  // if (storeType === "memory") {
+  //   store = new MemoryStore();
+  // } else {
+  //   store = new RedisStore();
+  // }
+
+  // let logger: LoggerClass | undefined;
+  // if (logs) logger = new Logger(logs.directory);
+
   const clientStore = setClientStore(cleanUpInterval, store);
   if (logs) createDirectoryIfNotExists(logs.directory);
 
