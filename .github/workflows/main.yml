@@ -6,15 +6,22 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - name: checkout
+      - name: Checkout Repository
         uses: actions/checkout@v2
-      - name: node
+
+      - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
           node-version: 18
           registry-url: https://registry.npmjs.org
-      - name: publish
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Project
+        run: npm run build
+
+      - name: Publish Package
         run: npm publish
-        working-directory: .
         env:
-          NPM_PUBLISH_SECRET: ${{ secrets.NPM_PUBLISH_SECRET }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_SECRET }}
