@@ -20,7 +20,7 @@ export const rateLimiter = ({
   headersType,
   logs,
   limitOptions,
-  storeType,
+  storeType = "memory",
   redisStore,
 }: limiterOptions): RequestHandler => {
   let store: Store;

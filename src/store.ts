@@ -14,6 +14,19 @@ export class MemoryStore implements Store {
     this.limit = limit;
     this.window = window;
     this.skip = skip ? skip : [];
+
+    this.startCleanupInterval();
+  }
+
+  startCleanupInterval() {
+    setInterval(() => {
+      const now = Date.now();
+      for (const [ip, rateData] of this.store) {
+        if (rateData.requests == 0 || now > rateData.expires) {
+          this.store.delete(ip);
+        }
+      }
+    }, 1000 * this.window);
   }
 
   set(key: string, value: RateLimitDataType) {
@@ -109,7 +122,10 @@ export class RedisStore implements Store {
   }
 
   async set(key: string, value: RateLimitDataType) {
-    await this.store.set(key, JSON.stringify(value), { EX: 60, NX: true });
+    await this.store.set(key, JSON.stringify(value), {
+      EX: this.window,
+      NX: true,
+    });
   }
 
   async get(key: string) {
