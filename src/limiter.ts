@@ -11,6 +11,11 @@ import { LoggerClass } from "./types";
 import { Logger } from "./logger";
 import { Headers } from "./headers";
 
+/**
+ * Express middleware for rate limiting.
+ * @param {limiterOptions} options - Configuration options for rate limiting.
+ * @returns {RequestHandler} Express middleware function.
+ */
 export const rateLimiter = ({
   key,
   skip,
@@ -26,6 +31,7 @@ export const rateLimiter = ({
   let store: Store;
   let logger: LoggerClass | undefined;
 
+  // Initialize appropriate storage (Memory or Redis)
   if (storeType === "memory") {
     store = new MemoryStore(DEFAULT_RATE_LIMIT, DEFAULT_RATE_WINDOW, skip);
   } else {
@@ -37,17 +43,23 @@ export const rateLimiter = ({
 
   const headers = new Headers(headersType);
 
+  // Initialize logger if logging is enabled
   if (logs) {
     logger = new Logger(logs.directory);
     logger.createDirectoryIfDoesNotExist(logs.directory);
   }
 
+  /**
+   * Rate limiter middleware function.
+   */
   const middleware: RequestHandler = async (request, response, next) => {
     const { max, window, requestTime, identifierKey, rateData } =
       await headers.setHeadersData(limitOptions, request, key, store);
 
+    // Skip rate limiting for specified identifiers
     if (store.skip && store.skip.includes(identifierKey)) return next();
 
+    // Set rate limit headers
     headers.setHeaders({
       res: response,
       headersType,
@@ -58,6 +70,7 @@ export const rateLimiter = ({
       requestTime,
     });
 
+    // Check rate limit and return response if exceeded
     const shouldReturn = await store.checkAndSetRateLimitData(
       max,
       window,
@@ -74,6 +87,7 @@ export const rateLimiter = ({
 
     if (shouldReturn) return;
 
+    // Modify response to handle failed requests
     response = store.modifyResponse(
       response,
       identifierKey,

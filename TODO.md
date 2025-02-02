@@ -1,4 +1,0 @@
-- [ ] Write Tests
-- [ ] Compare performance with express-rate-limit
-- [ ] JSDOC Documentation
-- [ ] Update [README.md](README.md)

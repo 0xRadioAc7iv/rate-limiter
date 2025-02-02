@@ -9,6 +9,10 @@
     "dist",
     "types"
   ],
+  "repository": {
+    "type": "url",
+    "url": "https://github.com/0xRadioAc7iv/rate-limiter.git"
+  },
   "scripts": {
     "build": "tsc",
     "test": "jest",
@@ -37,5 +41,9 @@
   },
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/0xRadioAc7iv/rate-limiter/issues"
+  },
+  "homepage": "https://github.com/0xRadioAc7iv/rate-limiter#readme"
 }

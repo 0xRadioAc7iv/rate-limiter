@@ -4,19 +4,45 @@ import { HeadersType } from "./types";
 import { RateLimitOptions } from "./types";
 import { DEFAULT_RATE_LIMIT, DEFAULT_RATE_WINDOW } from "./constants";
 
+/**
+ * Handles setting and constructing rate limit headers.
+ */
 class Headers {
+  /**
+   * The type of headers to be used.
+   * @type {HeadersType}
+   */
   headersType: HeadersType;
 
+  /**
+   * Creates an instance of Headers.
+   * @param {HeadersType} headersType - The type of headers.
+   */
   constructor(headersType: HeadersType) {
     this.headersType = headersType;
   }
 
+  /**
+   * Computes and retrieves rate limit data for a request.
+   * @param {(request?: Request) => RateLimitOptions} limitOptions - Function returning rate limit options.
+   * @param {Request} request - The incoming request object.
+   * @param {(req: Request) => string} [key] - Function to generate an identifier key.
+   * @param {Store} store - The storage mechanism.
+   * @returns {Promise<{max: number, window: number, requestTime: number, identifierKey: string, rateData: any}>}
+   *   The headers data.
+   */
   async setHeadersData(
     limitOptions: (request?: Request) => RateLimitOptions,
     request: Request,
     key: ((req: Request) => string) | undefined,
     store: Store
-  ) {
+  ): Promise<{
+    max: number;
+    window: number;
+    requestTime: number;
+    identifierKey: string;
+    rateData: any;
+  }> {
     const { max, window } = limitOptions
       ? limitOptions(request)
       : { max: DEFAULT_RATE_LIMIT, window: DEFAULT_RATE_WINDOW };
@@ -33,6 +59,10 @@ class Headers {
     };
   }
 
+  /**
+   * Sets the rate limit headers on the response.
+   * @param {HeadersArgs} args - The headers arguments.
+   */
   setHeaders({
     res,
     headersType,
@@ -71,13 +101,21 @@ class Headers {
     res.setHeaders(headers);
   }
 
-  constructHeaders = (
+  /**
+   * Constructs rate limit headers based on the specified type.
+   * @param {HeadersType} headersType - The headers type.
+   * @param {string} limit - The rate limit value.
+   * @param {string} remaining - The remaining requests.
+   * @param {string} reset - The reset time.
+   * @returns {Map<string, string>} The constructed headers.
+   */
+  constructHeaders(
     headersType: HeadersType,
     limit: string,
     remaining: string,
     reset: string
-  ): Map<string, string> => {
-    const headers = new Map<string, string>([]);
+  ): Map<string, string> {
+    const headers = new Map<string, string>();
 
     if (headersType === "draft-6") {
       headers.set("RateLimit-Limit", limit);
@@ -94,7 +132,7 @@ class Headers {
     }
 
     return headers;
-  };
+  }
 }
 
 export { Headers };
