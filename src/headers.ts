@@ -11,7 +11,7 @@ class Headers {
     this.headersType = headersType;
   }
 
-  setHeadersData(
+  async setHeadersData(
     limitOptions: (request?: Request) => RateLimitOptions,
     request: Request,
     key: ((req: Request) => string) | undefined,
@@ -22,7 +22,7 @@ class Headers {
       : { max: DEFAULT_RATE_LIMIT, window: DEFAULT_RATE_WINDOW };
     const requestTime = Date.now();
     const identifierKey = key ? key(request) : (request.ip as string);
-    const rateData = store.get(identifierKey);
+    const rateData = await store.get(identifierKey);
 
     return {
       max,

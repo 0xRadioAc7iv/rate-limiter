@@ -1,95 +1,64 @@
 import { RequestHandler } from "express";
-import { limiterOptions } from "./types";
+import { limiterOptions, Store } from "./types";
 import {
-  DEFAULT_CLEANUP_INTERVAL,
   DEFAULT_STATUS_CODE,
   DEFAULT_SKIP_FAILED_REQUESTS,
-  DEFAULT_KEY_SKIP_LIST,
-  DEFAULT_LEGACY_HEADERS,
-} from "./lib/constants";
-import { setRateLimitHeadersData, setRateLimitHeaders } from "./utils/headers";
-import { createDirectoryIfNotExists } from "./utils/logs";
-import {
-  checkAndSetRateLimitData,
-  modifyResponseIfNeededAndWriteLogs,
-  setClientStore,
-} from "./utils/store";
-// import { MemoryStore } from "./store";
-// import { LoggerClass } from "./types";
-// import { Logger } from "./logger";
+  DEFAULT_RATE_LIMIT,
+  DEFAULT_RATE_WINDOW,
+} from "./constants";
+import { MemoryStore, RedisStore } from "./store";
+import { LoggerClass } from "./types";
+import { Logger } from "./logger";
+import { Headers } from "./headers";
 
-/**
- * Creates a rate-limiting middleware for Express.js.
- *
- * This middleware manages rate-limiting based on customizable parameters. It supports in-memory and custom stores,
- * logging, headers customization, skipping certain requests, and managing failed requests.
- *
- * @param {limiterOptions} options - The configuration options for the rate limiter.
- * @param {string} options.key - The unique key used to identify requests (e.g., IP address or custom key).
- * @param {string[]} [options.skip=DEFAULT_KEY_SKIP_LIST] - List of keys to skip from rate-limiting.
- * @param {boolean} [options.skipFailedRequests=DEFAULT_SKIP_FAILED_REQUESTS] - Whether to skip failed requests from rate limits.
- * @param {number} [options.cleanUpInterval=DEFAULT_CLEANUP_INTERVAL] - Interval (in seconds) to clean up expired rate-limiting data.
- * @param {string} [options.message] - Custom message to send when the rate limit is exceeded.
- * @param {number} [options.statusCode=DEFAULT_STATUS_CODE] - HTTP status code to send when the rate limit is exceeded.
- * @param {boolean} [options.legacyHeaders=DEFAULT_LEGACY_HEADERS] - Whether to include legacy rate-limiting headers.
- * @param {boolean} [options.standardHeaders] - Whether to include standard rate-limiting headers (e.g., `RateLimit-*`).
- * @param {object} [options.logs] - Configuration for logging requests.
- * @param {string} [options.logs.directory] - Directory path for storing log files.
- * @param {object[]} options.limitOptions - Options for rate-limiting (e.g., max requests, time window).
- * @param {object} [options.store] - Optional custom store to use for managing rate-limiting data.
- * @returns {RequestHandler} - The middleware function to be used in an Express app.
- */
 export const rateLimiter = ({
   key,
-  skip = DEFAULT_KEY_SKIP_LIST,
+  skip,
   skipFailedRequests = DEFAULT_SKIP_FAILED_REQUESTS,
-  cleanUpInterval = DEFAULT_CLEANUP_INTERVAL,
   message,
   statusCode = DEFAULT_STATUS_CODE,
-  legacyHeaders = DEFAULT_LEGACY_HEADERS,
-  standardHeaders,
+  headersType,
   logs,
   limitOptions,
-  store,
+  storeType,
+  redisStore,
 }: limiterOptions): RequestHandler => {
-  // let store;
+  let store: Store;
+  let logger: LoggerClass | undefined;
 
-  // if (storeType === "memory") {
-  //   store = new MemoryStore();
-  // } else {
-  //   store = new RedisStore();
-  // }
+  if (storeType === "memory") {
+    store = new MemoryStore(DEFAULT_RATE_LIMIT, DEFAULT_RATE_WINDOW, skip);
+  } else {
+    if (!redisStore)
+      throw new Error("Configured Redis as Store but no Redis Store provided.");
 
-  // let logger: LoggerClass | undefined;
-  // if (logs) logger = new Logger(logs.directory);
+    store = new RedisStore(DEFAULT_RATE_LIMIT, DEFAULT_RATE_WINDOW, redisStore);
+  }
 
-  const clientStore = setClientStore(cleanUpInterval, store);
-  if (logs) createDirectoryIfNotExists(logs.directory);
+  const headers = new Headers(headersType);
+
+  if (logs) {
+    logger = new Logger(logs.directory);
+    logger.createDirectoryIfDoesNotExist(logs.directory);
+  }
 
   const middleware: RequestHandler = async (request, response, next) => {
     const { max, window, requestTime, identifierKey, rateData } =
-      await setRateLimitHeadersData(
-        limitOptions,
-        request,
-        response,
-        key,
-        clientStore
-      );
+      await headers.setHeadersData(limitOptions, request, key, store);
 
-    if (skip && skip.includes(identifierKey)) return next();
+    if (store.skip && store.skip.includes(identifierKey)) return next();
 
-    setRateLimitHeaders({
+    headers.setHeaders({
       res: response,
+      headersType,
       limit: max,
       requests: rateData?.requests || 1,
       expires: rateData?.expires || requestTime + window * 1000,
-      legacyHeaders,
-      standardHeaders,
       window,
       requestTime,
     });
 
-    const shouldReturn = await checkAndSetRateLimitData(
+    const shouldReturn = await store.checkAndSetRateLimitData(
       max,
       window,
       requestTime,
@@ -97,20 +66,18 @@ export const rateLimiter = ({
       rateData,
       message,
       statusCode,
-      legacyHeaders,
-      response,
-      clientStore
+      headersType,
+      response
     );
+
+    if (logger) logger.log(request);
 
     if (shouldReturn) return;
 
-    response = modifyResponseIfNeededAndWriteLogs(
-      request,
+    response = store.modifyResponse(
       response,
-      logs,
       identifierKey,
-      skipFailedRequests,
-      clientStore
+      skipFailedRequests
     );
 
     next();

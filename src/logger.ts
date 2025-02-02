@@ -1,20 +1,19 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { Request } from "express";
-import { DEFAULT_RATE_LIMIT_LOGGING } from "./constants";
 import { LoggerClass } from "./types";
 
 export class Logger implements LoggerClass {
-  logging?: boolean;
+  directory: string;
 
-  constructor(logging?: boolean) {
-    this.logging = logging ? logging : DEFAULT_RATE_LIMIT_LOGGING;
+  constructor(dir_path: string) {
+    this.directory = dir_path;
   }
 
-  async log(directory: string, request: Request) {
+  async log(request: Request) {
     const date = new Date();
     const fileName = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}.log`;
-    const filePath = path.join(directory, fileName);
+    const filePath = path.join(this.directory, fileName);
     const success = (request.statusCode as number) < 400 ? "Success" : "Failed";
 
     await fs.appendFile(
