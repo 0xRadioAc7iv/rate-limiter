@@ -18,7 +18,7 @@ The Rate Limiter is an open-source NPM package designed for managing request rat
 ## Installation
 
 ```bash
-npm install rate-limiter
+npm i @radioac7iv/rate-limiter
 ```
 
 ## Usage
@@ -27,7 +27,7 @@ npm install rate-limiter
 
 ```ts
 import express from "express";
-import { rateLimiter } from "rate-limiter";
+import { rateLimiter } from "@radioac7iv/rate-limiter";
 
 const app = express();
 
