@@ -126,7 +126,7 @@ export type limiterOptions = {
   skipFailedRequests?: boolean;
   message?: string;
   statusCode?: number;
-  headersType: HeadersType;
+  headersType?: HeadersType;
   logs?: logsOptions;
   limitOptions: (request?: Request) => RateLimitOptions;
   storeType?: StoreType;
