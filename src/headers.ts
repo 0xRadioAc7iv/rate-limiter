@@ -125,6 +125,8 @@ class Headers {
       headers.set("limit", limit);
       headers.set("remaining", remaining);
       headers.set("reset", reset);
+    } else if (headersType === "draft-8") {
+      headers.set("RateLimit", `${limit}, ${remaining}, ${reset}`);
     } else {
       headers.set("X-RateLimit-Limit", limit);
       headers.set("X-RateLimit-Remaining", remaining);

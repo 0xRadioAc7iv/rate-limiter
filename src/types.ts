@@ -85,7 +85,7 @@ export type RateLimitDataType = {
  * @typedef {"legacy" | "draft-6" | "draft-7"} HeadersType
  * @description The type of headers used for rate limiting.
  */
-export type HeadersType = "legacy" | "draft-6" | "draft-7";
+export type HeadersType = "legacy" | "draft-6" | "draft-7" | "draft-8";
 
 /**
  * @typedef HeadersArgs

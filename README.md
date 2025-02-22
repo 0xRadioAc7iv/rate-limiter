@@ -36,7 +36,7 @@ const rateLimit = rateLimiter({
   limitOptions: () => {
     return { max: 5, window: 10 };
   },
-  standardHeaders: "draft-7",
+  headersType: "draft-7",
   logs: {
     directory: "./logs",
   },
@@ -63,11 +63,9 @@ The rate limiter can be configured using the following options:
 | `limitOptions`       | Array         | List of objects defining `limit` (maximum requests) and `window` (time in seconds). | None (required)          |
 | `skip`               | Array<string> | Keys to skip from rate-limiting.                                                    | `[]`                     |
 | `skipFailedRequests` | boolean       | Whether to exclude failed requests from rate limits.                                | `false`                  |
-| `cleanUpInterval`    | number        | Interval (in seconds) for cleaning up expired rate data.                            | `30`                     |
 | `message`            | string        | Custom message when the rate limit is exceeded.                                     | `"Rate limit exceeded."` |
 | `statusCode`         | number        | HTTP status code to send when the rate limit is exceeded.                           | `429`                    |
-| `legacyHeaders`      | boolean       | Whether to include legacy headers (e.g., `X-RateLimit-Limit`).                      | `true`                   |
-| `standardHeaders`    | boolean       | Whether to include standard headers (e.g., `RateLimit-Limit`).                      | `false`                  |
+| `headersType`        | HeadersType   | Choose between "legacy", "draft-6", "draft-7" or "draft-8"                          | `legacy`                 |
 | `logs`               | object        | Configuration for logging requests (e.g., directory).                               | `undefined`              |
 
 ## Contributing
