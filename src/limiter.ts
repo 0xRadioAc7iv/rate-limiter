@@ -5,6 +5,7 @@ import {
   DEFAULT_SKIP_FAILED_REQUESTS,
   DEFAULT_RATE_LIMIT,
   DEFAULT_RATE_WINDOW,
+  DEFAULT_RATE_LIMIT_HEADERS_TYPE,
 } from "./constants";
 import { MemoryStore, RedisStore } from "./store";
 import { LoggerClass } from "./types";
@@ -22,7 +23,7 @@ export const rateLimiter = ({
   skipFailedRequests = DEFAULT_SKIP_FAILED_REQUESTS,
   message,
   statusCode = DEFAULT_STATUS_CODE,
-  headersType,
+  headersType = DEFAULT_RATE_LIMIT_HEADERS_TYPE,
   logs,
   limitOptions,
   storeType = "memory",
