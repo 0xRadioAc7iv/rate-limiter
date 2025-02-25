@@ -25,7 +25,7 @@ export interface Store {
   window: number;
   skip?: Array<string>;
 
-  set: (key: string, value: RateLimitDataType) => void;
+  set: (key: string, value: RateLimitDataType) => Promise<void>;
   get: (key: string) => Promise<RateLimitDataType | undefined>;
 
   modifyResponse: (
@@ -44,7 +44,7 @@ export interface Store {
     statusCode: number,
     headersType: HeadersType,
     response: Response
-  ) => true | void | Promise<true | void>;
+  ) => Promise<true | void>;
 }
 
 /**
