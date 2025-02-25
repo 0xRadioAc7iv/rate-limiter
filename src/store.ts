@@ -1,11 +1,13 @@
 import { RedisClientType } from "redis";
 import { Response } from "express";
-import { HeadersType, RateLimitDataType, Store } from "./types";
+import { HeadersType, RateLimitDataType, Store, StoreClassType } from "./types";
+import { Db } from "mongodb";
 
 abstract class BaseStore implements Store {
   limit: number;
   window: number;
   skip?: string[] | undefined;
+  abstract store: StoreClassType;
 
   /**
    * Creates a new MemoryStore instance.
@@ -180,5 +182,30 @@ export class RedisStore extends BaseStore {
   async get(key: string): Promise<RateLimitDataType | undefined> {
     const data = await this.store.get(key);
     return data ? (JSON.parse(data) as RateLimitDataType) : undefined;
+  }
+}
+
+/**
+ * MongoDB-based store for rate limiting.
+ */
+export class MongoStore extends BaseStore {
+  store: Db;
+
+  constructor(limit: number, window: number, store: Db, skip?: Array<string>) {
+    super(limit, window, skip);
+    this.store = store;
+  }
+
+  async set(key: string, value: RateLimitDataType) {
+    await this.store
+      .collection("rate-limits")
+      .updateOne({ key }, { $set: { ...value } }, { upsert: true });
+  }
+
+  async get(key: string): Promise<RateLimitDataType | undefined> {
+    const data = await this.store.collection("rate-limits").findOne({ key });
+    return data
+      ? { requests: data.requests as number, expires: data.expires as number }
+      : undefined;
   }
 }

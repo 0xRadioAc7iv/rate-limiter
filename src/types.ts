@@ -4,6 +4,7 @@
  */
 
 import { Request, Response } from "express";
+import { Db } from "mongodb";
 import { RedisClientType } from "redis";
 
 /**
@@ -51,7 +52,17 @@ export interface Store {
  * @typedef {"memory" | "redis"} StoreType
  * @description The type of store used for rate limiting.
  */
-export type StoreType = "memory" | "redis";
+export type StoreType = "memory" | "redis" | "mongodb";
+
+/**
+ * @typedef StoreClassType
+ * @description The type of store class used for rate limiting.
+ * @type {Map<string, RateLimitDataType> | RedisClientType | Db}
+ */
+export type StoreClassType =
+  | Map<string, RateLimitDataType>
+  | RedisClientType
+  | Db;
 
 /**
  * @typedef logsOptions
@@ -118,7 +129,7 @@ export type HeadersArgs = {
  * @property {logsOptions} [logs] - Logging options.
  * @property {(request?: Request) => RateLimitOptions} limitOptions - Function to determine rate limit options.
  * @property {StoreType} [storeType] - The type of storage.
- * @property {RedisClientType} [redisStore] - Redis client instance.
+ * @property {RedisClientType | Db} [externalStore] - Store client instance.
  */
 export type limiterOptions = {
   key?: (request: Request) => string;
@@ -130,5 +141,5 @@ export type limiterOptions = {
   logs?: logsOptions;
   limitOptions: (request?: Request) => RateLimitOptions;
   storeType?: StoreType;
-  redisStore?: RedisClientType;
+  externalStore?: RedisClientType | Db;
 };

@@ -45,5 +45,8 @@
   "bugs": {
     "url": "https://github.com/0xRadioAc7iv/rate-limiter/issues"
   },
-  "homepage": "https://github.com/0xRadioAc7iv/rate-limiter#readme"
+  "homepage": "https://github.com/0xRadioAc7iv/rate-limiter#readme",
+  "dependencies": {
+    "mongodb": "^6.13.1"
+  }
 }

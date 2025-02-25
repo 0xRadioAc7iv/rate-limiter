@@ -7,7 +7,7 @@ import {
   DEFAULT_RATE_WINDOW,
   DEFAULT_RATE_LIMIT_HEADERS_TYPE,
 } from "./constants";
-import { MemoryStore, RedisStore } from "./store";
+import { MemoryStore, MongoStore, RedisStore } from "./store";
 import { LoggerClass } from "./types";
 import { Logger } from "./logger";
 import { Headers } from "./headers";
@@ -27,19 +27,32 @@ export const rateLimiter = ({
   logs,
   limitOptions,
   storeType = "memory",
-  redisStore,
+  externalStore,
 }: limiterOptions): RequestHandler => {
   let store: Store;
   let logger: LoggerClass | undefined;
 
-  // Initialize appropriate storage (Memory or Redis)
-  if (storeType === "memory") {
-    store = new MemoryStore(DEFAULT_RATE_LIMIT, DEFAULT_RATE_WINDOW, skip);
-  } else {
-    if (!redisStore)
+  // Initialize appropriate storage (Memory, Redis or MongoDB)
+  if (storeType === "redis") {
+    if (!externalStore || !("get" in externalStore))
       throw new Error("Configured Redis as Store but no Redis Store provided.");
 
-    store = new RedisStore(DEFAULT_RATE_LIMIT, DEFAULT_RATE_WINDOW, redisStore);
+    store = new RedisStore(
+      DEFAULT_RATE_LIMIT,
+      DEFAULT_RATE_WINDOW,
+      externalStore
+    );
+  } else if (storeType === "mongodb") {
+    if (!externalStore || !("collection" in externalStore))
+      throw new Error("Configured Mongo as Store but no Mongo Store provided.");
+
+    store = new MongoStore(
+      DEFAULT_RATE_LIMIT,
+      DEFAULT_RATE_WINDOW,
+      externalStore
+    );
+  } else {
+    store = new MemoryStore(DEFAULT_RATE_LIMIT, DEFAULT_RATE_WINDOW, skip);
   }
 
   const headers = new Headers(headersType);
