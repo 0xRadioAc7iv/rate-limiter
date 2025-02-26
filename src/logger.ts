@@ -54,6 +54,7 @@ export class Logger implements LoggerClass {
   async createDirectoryIfDoesNotExist(directory: string): Promise<void> {
     try {
       await fs.mkdir(directory);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       if (error.code === "EEXIST") return;
       throw new Error("Error creating logs directory");
