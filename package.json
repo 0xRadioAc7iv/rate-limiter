@@ -2,7 +2,7 @@
   "author": "Manav Gadhiya",
   "name": "@radioac7iv/rate-limiter",
   "description": "Rate limiting middleware library",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "license": "MIT",
   "main": "dist/index.js",
   "types": "types/index.d.ts",
@@ -16,6 +16,8 @@
   },
   "scripts": {
     "build": "tsc",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
     "test": "jest",
     "link-lib": "npm run build && npm link",
     "prepublishOnly": "npm run build"
@@ -27,22 +29,26 @@
     "express"
   ],
   "dependencies": {
+    "fastify": "^5.2.1",
     "fastify-plugin": "^5.0.1",
     "mongodb": "^6.13.1"
   },
   "peerDependencies": {
     "express": "^4.11.0",
-    "redis": "^4.7.0",
-    "fastify": "^5.2.1"
+    "redis": "^4.7.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.21.0",
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.14",
+    "eslint": "^9.21.0",
     "express": "^4.11.0",
+    "globals": "^16.0.0",
     "jest": "^29.7.0",
     "redis": "^4.7.0",
     "ts-jest": "^29.2.5",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.25.0"
   },
   "bugs": {
     "url": "https://github.com/0xRadioAc7iv/rate-limiter/issues"
