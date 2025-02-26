@@ -1,12 +1,8 @@
-/**
- * @file logger.ts
- * @description Logger implementation for request logging.
- */
-
 import fs from "node:fs/promises";
 import path from "node:path";
 import { Request } from "express";
 import { LoggerClass } from "./types";
+import { FastifyReply, FastifyRequest } from "fastify";
 
 /**
  * @class Logger
@@ -29,11 +25,20 @@ export class Logger implements LoggerClass {
    * @param {Request} request - The request object.
    * @returns {Promise<void>}
    */
-  async log(request: Request): Promise<void> {
+  async log(
+    request: Request | FastifyRequest,
+    reply?: FastifyReply
+  ): Promise<void> {
     const date = new Date();
     const fileName = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}.log`;
     const filePath = path.join(this.directory, fileName);
-    const success = (request.statusCode as number) < 400 ? "Success" : "Failed";
+    const success = reply
+      ? reply.statusCode < 400
+        ? "Success"
+        : "Failed"
+      : ((request as Request).statusCode as number) < 400
+      ? "Success"
+      : "Failed";
 
     await fs.appendFile(
       filePath,

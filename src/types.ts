@@ -1,9 +1,5 @@
-/**
- * @file types.ts
- * @description Type definitions for rate limiting and logging functionalities.
- */
-
 import { Request, Response } from "express";
+import { FastifyReply, FastifyRequest } from "fastify";
 import { Db } from "mongodb";
 import { RedisClientType } from "redis";
 
@@ -13,7 +9,10 @@ import { RedisClientType } from "redis";
  */
 export interface LoggerClass {
   directory: string;
-  log: (request: Request) => Promise<void>;
+  log: (
+    request: Request | FastifyRequest,
+    reply?: FastifyReply
+  ) => Promise<void>;
   createDirectoryIfDoesNotExist: (directory: string) => Promise<void>;
 }
 
@@ -44,12 +43,12 @@ export interface Store {
     message: string | undefined,
     statusCode: number,
     headersType: HeadersType,
-    response: Response
+    response: Response | FastifyReply
   ) => Promise<true | void>;
 }
 
 /**
- * @typedef {"memory" | "redis"} StoreType
+ * @typedef {"memory" | "redis" | "mongodb"} StoreType
  * @description The type of store used for rate limiting.
  */
 export type StoreType = "memory" | "redis" | "mongodb";
@@ -93,7 +92,7 @@ export type RateLimitDataType = {
 };
 
 /**
- * @typedef {"legacy" | "draft-6" | "draft-7"} HeadersType
+ * @typedef {"legacy" | "draft-6" | "draft-7" | "draft-8"} HeadersType
  * @description The type of headers used for rate limiting.
  */
 export type HeadersType = "legacy" | "draft-6" | "draft-7" | "draft-8";
@@ -109,7 +108,7 @@ export type HeadersType = "legacy" | "draft-6" | "draft-7" | "draft-8";
  * @property {number} requestTime - The request timestamp.
  */
 export type HeadersArgs = {
-  res: Response;
+  res: Response | FastifyReply;
   headersType: HeadersType;
   limit: number;
   requests: number;
@@ -132,14 +131,14 @@ export type HeadersArgs = {
  * @property {RedisClientType | Db} [externalStore] - Store client instance.
  */
 export type limiterOptions = {
-  key?: (request: Request) => string;
+  key?: (request: Request | FastifyRequest) => string;
   skip?: Array<string>;
   skipFailedRequests?: boolean;
   message?: string;
   statusCode?: number;
   headersType?: HeadersType;
   logs?: logsOptions;
-  limitOptions: (request?: Request) => RateLimitOptions;
+  limitOptions: (request?: Request | FastifyRequest) => RateLimitOptions;
   storeType?: StoreType;
   externalStore?: RedisClientType | Db;
 };
