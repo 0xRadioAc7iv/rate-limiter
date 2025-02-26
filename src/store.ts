@@ -2,6 +2,7 @@ import { RedisClientType } from "redis";
 import { Response } from "express";
 import { HeadersType, RateLimitDataType, Store, StoreClassType } from "./types";
 import { Db } from "mongodb";
+import { FastifyReply } from "fastify";
 
 abstract class BaseStore implements Store {
   limit: number;
@@ -83,7 +84,7 @@ abstract class BaseStore implements Store {
     message: string | undefined,
     statusCode: number,
     headersType: HeadersType,
-    response: Response
+    response: Response | FastifyReply
   ): Promise<true | void> {
     const firstRequestData = {
       requests: 1,
@@ -100,14 +101,26 @@ abstract class BaseStore implements Store {
           const timeLeft = Math.ceil((rateData.expires - requestTime) / 1000);
 
           if (headersType === "legacy") {
-            response.setHeader("Retry-After", timeLeft);
+            if ("setHeader" in response) {
+              response.setHeader("Retry-After", timeLeft);
+            } else {
+              response.header("Retry-After", timeLeft);
+            }
           }
 
-          response.status(statusCode).json({
-            error: message
-              ? message
-              : `Rate limit exceeded. Try again in ${timeLeft} seconds.`,
-          });
+          if ("hijack" in response) {
+            response.status(statusCode).send({
+              error: message
+                ? message
+                : `Rate limit exceeded. Try again in ${timeLeft} seconds.`,
+            });
+          } else {
+            response.status(statusCode).json({
+              error: message
+                ? message
+                : `Rate limit exceeded. Try again in ${timeLeft} seconds.`,
+            });
+          }
 
           return true;
         }

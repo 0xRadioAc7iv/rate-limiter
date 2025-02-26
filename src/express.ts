@@ -17,7 +17,7 @@ import { Headers } from "./headers";
  * @param {limiterOptions} options - Configuration options for rate limiting.
  * @returns {RequestHandler} Express middleware function.
  */
-export const rateLimiter = ({
+export const expressRateLimiter = ({
   key,
   skip,
   skipFailedRequests = DEFAULT_SKIP_FAILED_REQUESTS,

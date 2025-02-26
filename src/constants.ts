@@ -1,8 +1,3 @@
-/**
- * @file constants.ts
- * @description Default configuration constants for rate limiting.
- */
-
 /** Default maximum allowed requests */
 export const DEFAULT_RATE_LIMIT = 100;
 

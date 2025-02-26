@@ -1,8 +1,9 @@
 import { Request } from "express";
-import { HeadersArgs, Store } from "./types";
+import { HeadersArgs, RateLimitDataType, Store } from "./types";
 import { HeadersType } from "./types";
 import { RateLimitOptions } from "./types";
 import { DEFAULT_RATE_LIMIT, DEFAULT_RATE_WINDOW } from "./constants";
+import { FastifyRequest } from "fastify";
 
 /**
  * Handles setting and constructing rate limit headers.
@@ -32,16 +33,16 @@ class Headers {
    *   The headers data.
    */
   async setHeadersData(
-    limitOptions: (request?: Request) => RateLimitOptions,
-    request: Request,
-    key: ((req: Request) => string) | undefined,
+    limitOptions: (request?: Request | FastifyRequest) => RateLimitOptions,
+    request: Request | FastifyRequest,
+    key: ((req: Request | FastifyRequest) => string) | undefined,
     store: Store
   ): Promise<{
     max: number;
     window: number;
     requestTime: number;
     identifierKey: string;
-    rateData: any;
+    rateData: RateLimitDataType | undefined;
   }> {
     const { max, window } = limitOptions
       ? limitOptions(request)
@@ -86,8 +87,18 @@ class Headers {
         resetTime
       );
 
-      res.setHeader("RateLimit-Policy", `${limit};w=${window}`);
-      res.setHeaders(headers);
+      if ("setHeaders" in res) {
+        res.setHeader("RateLimit-Policy", `${limit};w=${window}`);
+        res.setHeaders(headers);
+      } else if ("header" in res) {
+        res.header("RateLimit-Policy", `${limit};w=${window}`);
+        for (const [key, value] of headers) {
+          res.header(key, value);
+        }
+      } else {
+        throw new Error("Unsupported response object");
+      }
+
       return;
     }
 
@@ -98,7 +109,15 @@ class Headers {
       resetTime
     );
 
-    res.setHeaders(headers);
+    if ("setHeaders" in res) {
+      res.setHeaders(headers);
+    } else if ("header" in res) {
+      for (const [key, value] of headers) {
+        res.header(key, value);
+      }
+    } else {
+      throw new Error("Unsupported response object");
+    }
   }
 
   /**

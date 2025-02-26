@@ -2,7 +2,8 @@
   "author": "Manav Gadhiya",
   "name": "@radioac7iv/rate-limiter",
   "description": "Rate limiting middleware library",
-  "version": "2.0.4",
+  "version": "2.0.5",
+  "license": "MIT",
   "main": "dist/index.js",
   "types": "types/index.d.ts",
   "files": [
@@ -25,10 +26,14 @@
     "middleware",
     "express"
   ],
-  "license": "MIT",
+  "dependencies": {
+    "fastify-plugin": "^5.0.1",
+    "mongodb": "^6.13.1"
+  },
   "peerDependencies": {
     "express": "^4.11.0",
-    "redis": "^4.7.0"
+    "redis": "^4.7.0",
+    "fastify": "^5.2.1"
   },
   "devDependencies": {
     "@types/express": "^5.0.0",
@@ -39,14 +44,11 @@
     "ts-jest": "^29.2.5",
     "typescript": "^5.7.2"
   },
-  "publishConfig": {
-    "access": "public"
-  },
   "bugs": {
     "url": "https://github.com/0xRadioAc7iv/rate-limiter/issues"
   },
   "homepage": "https://github.com/0xRadioAc7iv/rate-limiter#readme",
-  "dependencies": {
-    "mongodb": "^6.13.1"
+  "publishConfig": {
+    "access": "public"
   }
 }
