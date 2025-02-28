@@ -34,15 +34,3 @@ jobs:
         working-directory: package
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_SECRET }}
-
-      - name: Set up Node.js for GitHub Packages
-        uses: actions/setup-node@v2
-        with:
-          node-version: 18
-          registry-url: https://npm.pkg.github.com/
-
-      - name: Publish to GitHub Packages
-        run: npm publish --access public --registry=https://npm.pkg.github.com/
-        working-directory: package
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
