@@ -1,0 +1,70 @@
+---
+sidebar_position: 2
+title: Getting Started
+---
+
+This guide will help you quickly set up and integrate rate limiting into your application.
+
+## Prerequisites
+
+Before you begin, ensure you have:
+
+- **Node.js** (v14+ recommended)
+- **npm**, **pnpm** or **yarn** installed
+
+## Installation
+
+You can install the library using either npm or yarn:
+
+```sh
+# Using npm
+npm i @radioac7iv/rate-limiter
+```
+
+```sh
+# Using pnpm
+pnpm i @radioac7iv/rate-limiter
+```
+
+```sh
+# Using yarn
+yarn add @radioac7iv/rate-limiter
+```
+
+## Additional Notes
+
+- Ensure you have Node.js 14+ installed.
+- If using Redis for distributed rate limiting you'll need to install and configure a redis client as well. Click **[here](./configuration/storage.mdx#redis)** to see how to use Redis with this package.
+
+## Basic Usage
+
+Here's a simple example of how to use the rate limiter in an **Express.js** application:
+
+```typescript
+import express from "express";
+import { expressRateLimiter } from "@radioac7iv/rate-limiter";
+
+const app = express();
+
+const rateLimit = expressRateLimiter({
+  limitOptions: () => {
+    return { max: 5, window: 10 };
+  },
+});
+
+app.use(rateLimit);
+
+app.get("/", (request, response) => {
+  response.status(200).send({ message: "Hello!" });
+});
+
+app.listen(3000, () => {
+  console.log("Server started at PORT: 3000");
+});
+```
+
+## Next Steps
+
+- Configure custom storage options in **[Storage Configuration](./configuration/storage.mdx)**
+
+Need help? Check out our **[Troubleshooting Guide](./troubleshooting.md)**.

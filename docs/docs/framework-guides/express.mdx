@@ -1,0 +1,24 @@
+---
+sidebar_position: 1
+title: Express.js
+---
+
+This guide will help you quickly set up and integrate rate limiting into your Express.js application.
+
+### Example
+
+```ts
+import { expressRateLimiter } from "@radioac7iv/rate-limiter";
+
+const rateLimit = expressRateLimiter({
+  key: (req) => req.ip as string,
+  message: "You have exceeded the rate limit",
+  headersType: "draft-7",
+  logs: {
+    directory: "./logs",
+  },
+  limitOptions: () => {
+    return { max: 5, window: 10 };
+  },
+});
+```

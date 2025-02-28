@@ -1,0 +1,54 @@
+---
+sidebar_position: 1
+title: Customization
+---
+
+The library provides multiple options to customize rate limiting behavior.
+
+:::info
+Options without any default value are required by the user to be provided.
+:::
+
+### Options
+
+| Option             | Type                  | Description                                                                                 | Default             |
+| ------------------ | --------------------- | ------------------------------------------------------------------------------------------- | ------------------- |
+| key                | function              | Unique key to identify each client (e.g., IP address or an API Key).                        | Client's IP address |
+| skip               | string[]              | Keys to skip from rate-limiting.                                                            | `[]`                |
+| skipFailedRequests | boolean               | Whether to exclude failed requests from rate limits.                                        | `false`             |
+| message            | string                | Custom message when the rate limit is exceeded.                                             | Rate limit exceeded |
+| statusCode         | number                | HTTP status code to send when the rate limit is exceeded.                                   | `429`               |
+| headersType        | HeadersType           | Choose between "legacy", "draft-6", "draft-7" or "draft-8"                                  | `legacy`            |
+| logs               | object                | Configuration for logging requests                                                          | `undefined`         |
+| limitOptions       | object                | Function returning Object defining `max` (maximum requests) and `window` (time in seconds). | None (required)     |
+| storeType          | StoreType             | Choose between "memory", "redis" or "mongodb"                                               | `memory`            |
+| externalStore      | RedisClientType \| Db | External store instance for storing rate-limiting data.                                     | `undefined`         |
+
+### Example
+
+```ts
+import { expressRateLimiter } from "@radioac7iv/rate-limiter";
+import { createClient } from "redis";
+
+const redisClient = createClient({
+  host: "localhost",
+  port: 6379,
+});
+
+const rateLimit = expressRateLimiter({
+  key: (req) => req.ip as string,
+  skip: ["ip-1", "ip-2"],
+  skipFailedRequests: true,
+  message: "You have exceeded the rate limit",
+  statusCode: 430,
+  headersType: "draft-7",
+  logs: {
+    directory: "./logs",
+  },
+  limitOptions: () => {
+    return { max: 5, window: 10 };
+  },
+  storeType: "redis",
+  externalStore: redisClient,
+});
+```

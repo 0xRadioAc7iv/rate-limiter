@@ -138,7 +138,9 @@ export type limiterOptions = {
   statusCode?: number;
   headersType?: HeadersType;
   logs?: logsOptions;
-  limitOptions: (request?: Request | FastifyRequest) => RateLimitOptions;
+  limitOptions:
+    | ((request?: Request | FastifyRequest) => RateLimitOptions)
+    | RateLimitOptions;
   storeType?: StoreType;
   externalStore?: RedisClientType | Db;
 };

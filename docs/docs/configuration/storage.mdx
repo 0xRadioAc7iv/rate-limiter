@@ -1,0 +1,74 @@
+---
+sidebar_position: 2
+title: Storage
+---
+
+This library supports multiple storage backends to store rate-limiting data.
+
+- In-memory
+- Redis
+- MongoDB
+
+### In-memory
+
+- The default option, best for simple use cases.
+- Not suitable for distributed or multi-instance deployments.
+
+**Example usage:**
+
+```ts
+import { expressRateLimiter } from "@radioac7iv/rate-limiter";
+
+const rateLimit = expressRateLimiter({
+  limitOptions: () => {
+    return { max: 5, window: 10 };
+  },
+});
+```
+
+### Redis
+
+- Ideal for distributed systems and multi-instance applications.
+- Requires a configured Redis Client
+
+**Example usage:**
+
+```ts
+import { expressRateLimiter } from "@radioac7iv/rate-limiter";
+import { createClient } from "redis";
+
+const redisClient = createClient({ url: "redis://localhost:6379" });
+await redisClient.connect();
+
+const rateLimit = expressRateLimiter({
+  limitOptions: () => {
+    return { max: 5, window: 10 };
+  },
+  store: "redis",
+  externalStore: redisClient,
+});
+```
+
+### MongoDB
+
+- Suitable for distributed systems and multi-instance applications.
+- Requires a configured mongo client.
+
+**Example usage:**
+
+```ts
+import { expressRateLimiter } from "@radioac7iv/rate-limiter";
+import { MongoClient } from "mongodb";
+
+const mongoClient = new MongoClient("mongodb://localhost:27017");
+await mongoClient.connect();
+const db = mongoClient.db("rate-limiter");
+
+const rateLimit = expressRateLimiter({
+  limitOptions: () => {
+    return { max: 5, window: 10 };
+  },
+  store: "mongodb",
+  externalStore: mongoClient,
+});
+```

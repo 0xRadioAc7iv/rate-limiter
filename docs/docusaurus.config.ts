@@ -3,15 +3,13 @@ import type { Config } from "@docusaurus/types";
 import type * as Preset from "@docusaurus/preset-classic";
 
 const config: Config = {
-  title: "My Site",
-  tagline: "Dinosaurs are cool",
+  title: "Rate Limiter",
+  tagline:
+    "Rate Limiter is a simple and efficient rate limiting library for Express & Fastify",
   favicon: "img/favicon.ico",
 
-  url: "https://0xradioac7iv.github.io/",
-  baseUrl: process.env.BASE_URL || "/",
-
-  organizationName: "0xradioac7iv",
-  projectName: "rate-limiter",
+  url: "https://rate-limiter.0xradioactiv.xyz",
+  baseUrl: "/",
 
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
@@ -37,15 +35,15 @@ const config: Config = {
   ],
 
   themeConfig: {
-    image: "img/docusaurus-social-card.jpg",
+    image: "img/image.png",
     colorMode: {
       defaultMode: "dark",
     },
     navbar: {
       title: "Rate Limiter",
       logo: {
-        alt: "My Site Logo",
-        src: "img/logo.svg",
+        alt: "Gopher (@radioac7iv)",
+        src: "img/gopher_radioac7iv.png",
       },
       items: [
         {
