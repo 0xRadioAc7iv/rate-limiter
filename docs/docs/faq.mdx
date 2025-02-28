@@ -11,7 +11,9 @@ You can apply the middleware to individual routes:
 app.post(
   "/auth/reset-password",
   expressRateLimiter({
-    limitOptions: { max: 2, window: 3600 },
+    limitOptions: () => {
+      return { max: 2, window: 3600 };
+    },
   })
 );
 ```
