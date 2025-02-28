@@ -17,14 +17,18 @@ jobs:
 
       - name: Install Dependencies
         run: npm ci
+        working-directory: package
 
       - name: Lint Project
         run: npm run lint
+        working-directory: package
 
       - name: Build Project
         run: npm run build
+        working-directory: package
 
       - name: Publish Package
         run: npm publish
+        working-directory: package
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_SECRET }}

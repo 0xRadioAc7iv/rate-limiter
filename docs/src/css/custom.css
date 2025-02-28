@@ -1,0 +1,29 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+:root {
+  --ifm-font-family-base: "Inter", sans-serif;
+}
+
+:root {
+  --ifm-color-primary: #18181b;
+  --ifm-color-primary-dark: #121215;
+  --ifm-color-primary-darker: #0e0e11;
+  --ifm-color-primary-darkest: #09090b;
+  --ifm-color-primary-light: #27272a;
+  --ifm-color-primary-lighter: #323236;
+  --ifm-color-primary-lightest: #3f3f46;
+  --ifm-code-font-size: 95%;
+  --docusaurus-highlighted-code-line-bg: rgba(24, 24, 27, 0.6);
+}
+
+/* For readability concerns, you should choose a lighter palette in dark mode. */
+[data-theme="dark"] {
+  --ifm-color-primary: #a1a1aa;
+  --ifm-color-primary-dark: #71717a;
+  --ifm-color-primary-darker: #52525b;
+  --ifm-color-primary-darkest: #3f3f46;
+  --ifm-color-primary-light: #d4d4d8;
+  --ifm-color-primary-lighter: #e4e4e7;
+  --ifm-color-primary-lightest: #f4f4f5;
+  --docusaurus-highlighted-code-line-bg: rgba(161, 161, 170, 0.3);
+}
