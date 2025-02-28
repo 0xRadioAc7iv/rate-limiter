@@ -7,16 +7,11 @@ const config: Config = {
   tagline: "Dinosaurs are cool",
   favicon: "img/favicon.ico",
 
-  // Set the production url of your site here
-  url: "https://0xradioac7iv.github.io/rate-limiter/",
-  // Set the /<baseUrl>/ pathname under which your site is served
-  // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: "/",
+  url: "https://0xradioac7iv.github.io/",
+  baseUrl: process.env.BASE_URL || "/",
 
-  // GitHub pages deployment config.
-  // If you aren't using GitHub pages, you don't need these.
-  organizationName: "0xRadioAc7iv", // Usually your GitHub org/user name.
-  projectName: "rate-limiter", // Usually your repo name.
+  organizationName: "0xradioac7iv",
+  projectName: "rate-limiter",
 
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",

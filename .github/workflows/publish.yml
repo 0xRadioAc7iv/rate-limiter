@@ -1,10 +1,12 @@
-name: "main"
+name: "publish"
 
 on:
   push:
+    branches:
+      - master
     paths:
       - "package/**"
-      - ".github/workflows/main.yaml"
+      - ".github/workflows/main.yml"
 
 jobs:
   publish:
