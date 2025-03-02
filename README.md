@@ -47,7 +47,7 @@ app.listen(3000, () => {
 
 Detailed usage, configuration options, and examples are available in the official documentation:
 
-[🔗 Read the Docs](https://rate-limiter.0xradioactiv.xyz/)
+🔗 [Read the Docs](https://rate-limiter.0xradioactiv.xyz/)
 
 ### 🤝 Contributing
 
