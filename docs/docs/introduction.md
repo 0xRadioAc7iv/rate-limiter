@@ -13,7 +13,7 @@ Modern web applications require efficient mechanisms to **protect APIs from exce
 - ⚡ **High Performance** – Optimized for minimal latency impact.
 - 🔄 **Pluggable Storage Backends** – Supports In-memory, Redis and MongoDB.
 - 🔧 **Customizable Rules** – Set limits per IP, user, or API key.
-- 🛠 **Easy Middleware Integration** – Works seamlessly with Express.js, Fastify and NestJS (Coming Soon)
+- 🛠 **Easy Middleware Integration** – Works seamlessly with Express.js, Fastify and NestJS.
 - 📊 **Logging & Monitoring** – Helps track usage patterns and violations.
 
 ## 📌 Key Features

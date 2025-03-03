@@ -11,6 +11,8 @@ title: Contributing
 4. **Commit and Push**: Write meaningful commit messages.
 5. **Submit a Pull Request**: Ensure your code passes all tests.
 
+Take a look at the Official **[Contributing Guide](https://github.com/0xRadioAc7iv/rate-limiter/blob/master/CONTRIBUTING.md)** to understand more on how to contribute.
+
 ### **Reporting Issues**
 
 - Check open issues before creating a new one.

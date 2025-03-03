@@ -4,6 +4,60 @@ title: NestJS
 ---
 
 This guide will help you quickly set up and integrate rate limiting into your NestJS application.
+
+## Configured with Express
+
+### Example
+
+Configure the middleware in your desired module like this:
+
+```ts
+import { Module, MiddlewareConsumer, NestModule } from "@nestjs/common";
+import { expressRateLimiter } from "../middlewares/express"; // Adjust path as needed
+import { limiterOptions } from "../lib/types";
+
+const rateLimiterOptions: limiterOptions = {
+  limitOptions: { max: 100, window: 60 }, // Example options
+  key: (req) => req.ip,
+};
+
+@Module({})
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(expressRateLimiter(rateLimiterOptions)).forRoutes("*");
+  }
+}
+```
+
+## Configured with Fastify
+
 :::info
-Coming Soon! 🚀
+Ensure that you have configured NestJS to use Fastify as the underlying HTTP Adapter
 :::
+
+### Example
+
+You can configure the middleware in `main.ts` like this:
+
+```ts
+import { NestFactory } from "@nestjs/core";
+import { AppModule } from "./app.module";
+import { fastifyRateLimiter } from "../middlewares/fastify"; // Adjust path as needed
+import { limiterOptions } from "../lib/types";
+import { FastifyInstance } from "fastify";
+
+const rateLimiterOptions: limiterOptions = {
+  limitOptions: { max: 100, window: 60 }, // Example options
+  key: (req) => req.ip,
+};
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  const fastifyApp = app.getHttpAdapter().getInstance() as FastifyInstance;
+
+  await fastifyApp.register(fastifyRateLimiter, rateLimiterOptions);
+
+  await app.listen(3000);
+}
+bootstrap();
+```

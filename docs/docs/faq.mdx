@@ -55,3 +55,7 @@ app.use(expressRateLimiter({
 ### **5. What happens when a request exceeds the limit?**
 
 The middleware returns a `429 Too Many Requests` response.
+
+### **6: Why does it not work with NestJS with Fastify?**
+
+Ensure that you have configured NestJS to use Fastify as the underlying HTTP Adapter and try again.
