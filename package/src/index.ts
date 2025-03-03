@@ -1,2 +1,2 @@
-export { expressRateLimiter } from "./express";
-export { fastifyRateLimiter } from "./fastify";
+export { expressRateLimiter } from "./middlewares/express";
+export { fastifyRateLimiter } from "./middlewares/fastify";

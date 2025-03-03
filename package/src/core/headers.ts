@@ -1,8 +1,12 @@
 import { Request } from "express";
-import { HeadersArgs, RateLimitDataType, Store } from "./types";
-import { HeadersType } from "./types";
-import { RateLimitOptions } from "./types";
-import { DEFAULT_RATE_LIMIT, DEFAULT_RATE_WINDOW } from "./constants";
+import {
+  HeadersArgs,
+  RateLimitDataType,
+  Store,
+  HeadersType,
+  RateLimitOptions,
+} from "../lib/types";
+import { DEFAULT_RATE_LIMIT, DEFAULT_RATE_WINDOW } from "../lib/constants";
 import { FastifyRequest } from "fastify";
 
 /**

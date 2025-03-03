@@ -1,6 +1,11 @@
 import { RedisClientType } from "redis";
 import { Response } from "express";
-import { HeadersType, RateLimitDataType, Store, StoreClassType } from "./types";
+import {
+  HeadersType,
+  RateLimitDataType,
+  Store,
+  StoreClassType,
+} from "../lib/types";
 import { Db } from "mongodb";
 import { FastifyReply } from "fastify";
 
