@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { Request } from "express";
-import { LoggerClass } from "./types";
+import { LoggerClass } from "../lib/types";
 import { FastifyReply, FastifyRequest } from "fastify";
 
 /**
