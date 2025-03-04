@@ -84,6 +84,21 @@ git commit -m "Add new feature"
 git push origin feature-name
 ```
 
+### 🧪 Testing
+
+To run the tests:
+
+```bash
+cd package
+npm test
+```
+
+To get converage report:
+
+```bash
+npm run test:cov
+```
+
 ### 📜 License
 
 This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.

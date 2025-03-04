@@ -99,6 +99,7 @@ Once approved, your PR will be merged! 🎉
 - Use meaningful variable and function names.
 - Maintain backward compatibility when possible.
 - Avoid unnecessary dependencies.
+- Make sure all the tests are passing.
 
 ## Your Contribution is Appreciated! 🎉
 
