@@ -7,5 +7,4 @@ module.exports = {
   },
   testMatch: ["**/src/**/*.test.ts"],
   moduleFileExtensions: ["ts", "js"],
-  forceExit: true,
 };

@@ -28,12 +28,6 @@ export interface Store {
   set: (key: string, value: RateLimitDataType) => Promise<void>;
   get: (key: string) => Promise<RateLimitDataType | undefined>;
 
-  modifyResponse: (
-    response: Response,
-    identifierKey: string,
-    skipFailedRequests: boolean
-  ) => Response;
-
   checkAndSetRateLimitData: (
     max: number,
     window: number,

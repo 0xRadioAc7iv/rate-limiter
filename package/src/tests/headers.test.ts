@@ -114,6 +114,8 @@ describe("tests should set headers data", () => {
     expect(requestTime).toBe(requestTime);
     expect(identifierKey).toBe("127.0.0.1");
     expect(rateData).toBe(undefined);
+
+    clearInterval(store.interval);
   });
 
   test("when key is supplied", async () => {
@@ -132,6 +134,8 @@ describe("tests should set headers data", () => {
     expect(requestTime).toBe(requestTime);
     expect(identifierKey).toBe("user");
     expect(rateData).toBe(undefined);
+
+    clearInterval(store.interval);
   });
 });
 

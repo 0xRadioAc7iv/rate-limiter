@@ -42,32 +42,6 @@ abstract class BaseStore implements Store {
   abstract set(key: string, value: RateLimitDataType): Promise<void>;
 
   /**
-   * Modifies the response based on rate limit tracking.
-   * @param {Response} response - Express response object.
-   * @param {string} identifierKey - The key identifying the request source.
-   * @param {boolean} skipFailedRequests - Whether to ignore failed requests in rate counting.
-   * @returns {Response} The modified response object.
-   */
-  modifyResponse(
-    response: Response,
-    identifierKey: string,
-    skipFailedRequests: boolean
-  ): Response {
-    response.on("finish", async () => {
-      const rateLimitData = await this.get(identifierKey);
-
-      if (skipFailedRequests && response.statusCode >= 400) {
-        await this.set(identifierKey, {
-          expires: rateLimitData?.expires as number,
-          requests: (rateLimitData?.requests as number) - 1,
-        });
-      }
-    });
-
-    return response;
-  }
-
-  /**
    * Checks and updates rate limit data before processing a request.
    * @param {number} max - Maximum allowed requests.
    * @param {number} window - Time window in seconds.
@@ -144,6 +118,7 @@ abstract class BaseStore implements Store {
  */
 export class MemoryStore extends BaseStore {
   store: Map<string, RateLimitDataType>;
+  interval!: NodeJS.Timeout;
 
   constructor(limit: number, window: number, skip?: Array<string>) {
     super(limit, window, skip);
@@ -155,7 +130,7 @@ export class MemoryStore extends BaseStore {
    * Starts an interval to clean up expired rate limit entries.
    */
   private startCleanupInterval() {
-    setInterval(() => {
+    this.interval = setInterval(() => {
       const now = Date.now();
       for (const [ip, rateData] of this.store) {
         if (rateData.requests === 0 || now > rateData.expires) {
