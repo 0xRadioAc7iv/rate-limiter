@@ -28,7 +28,6 @@ export class RateLimiterMiddleware {
     };
 
     this.store = this.initializeStore();
-
     this.headers = new Headers(this.options.headersType as HeadersType);
 
     if (this.options.logs) {

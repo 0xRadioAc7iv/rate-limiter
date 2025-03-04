@@ -1,5 +1,5 @@
 import { Db } from "mongodb";
-import { MemoryStore, MongoStore, RedisStore } from "../core/store";
+import { MemoryStore, MongoStore, RedisStore } from "../../core/store";
 import { Response } from "express";
 import { FastifyReply } from "fastify";
 

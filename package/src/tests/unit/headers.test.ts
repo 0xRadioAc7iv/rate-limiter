@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { Headers } from "../core/headers";
-import { MemoryStore } from "../core/store";
+import { Headers } from "../../core/headers";
+import { MemoryStore } from "../../core/store";
 import { FastifyReply, FastifyRequest } from "fastify";
 
 interface TestRequest extends Request {

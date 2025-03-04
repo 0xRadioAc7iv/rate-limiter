@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { Logger } from "../core/logger";
+import { Logger } from "../../core/logger";
 import { Request } from "express";
 import { FastifyReply } from "fastify";
 
