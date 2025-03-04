@@ -19,6 +19,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "test": "jest",
+    "test:cov": "jest --coverage",
     "link-lib": "npm run build && npm link",
     "prepublishOnly": "npm run build"
   },
