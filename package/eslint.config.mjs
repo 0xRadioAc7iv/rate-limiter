@@ -8,5 +8,14 @@ export default [
   { languageOptions: { globals: globals.browser } },
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
-  { ignores: ["node_modules", "dist", "types"] },
+  {
+    ignores: [
+      "node_modules",
+      "dist",
+      "types",
+      "src/tests",
+      "coverage",
+      "jest.config.js",
+    ],
+  },
 ];
