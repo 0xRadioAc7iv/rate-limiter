@@ -29,6 +29,10 @@ jobs:
         run: npm run lint
         working-directory: package
 
+      - name: Run Tests
+        run: npm test
+        working-directory: package
+
       - name: Publish Package
         run: npm publish
         working-directory: package

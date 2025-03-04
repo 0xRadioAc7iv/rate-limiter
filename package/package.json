@@ -2,7 +2,7 @@
   "author": "Manav Gadhiya",
   "name": "@radioac7iv/rate-limiter",
   "description": "Rate limiting middleware library",
-  "version": "2.0.9",
+  "version": "2.1.0",
   "license": "MIT",
   "main": "dist/index.js",
   "types": "types/index.d.ts",
@@ -18,7 +18,8 @@
     "build": "tsc",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
-    "test": "jest",
+    "test": "jest --detectOpenHandles --runInBand",
+    "test:cov": "jest --runInBand --coverage",
     "link-lib": "npm run build && npm link",
     "prepublishOnly": "npm run build"
   },

@@ -1,3 +1,11 @@
+# Dependencies
 node_modules
+
+# Distribution
 dist
+
+# Types
 types
+
+# Test Coverage
+coverage

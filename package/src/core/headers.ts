@@ -6,7 +6,6 @@ import {
   HeadersType,
   RateLimitOptions,
 } from "../lib/types";
-import { DEFAULT_RATE_LIMIT, DEFAULT_RATE_WINDOW } from "../lib/constants";
 import { FastifyRequest } from "fastify";
 
 /**
@@ -48,9 +47,7 @@ class Headers {
     identifierKey: string;
     rateData: RateLimitDataType | undefined;
   }> {
-    const { max, window } = limitOptions
-      ? limitOptions(request)
-      : { max: DEFAULT_RATE_LIMIT, window: DEFAULT_RATE_WINDOW };
+    const { max, window } = limitOptions(request);
     const requestTime = Date.now();
     const identifierKey = key ? key(request) : (request.ip as string);
     const rateData = await store.get(identifierKey);
@@ -99,8 +96,6 @@ class Headers {
         for (const [key, value] of headers) {
           res.header(key, value);
         }
-      } else {
-        throw new Error("Unsupported response object");
       }
 
       return;
@@ -119,8 +114,6 @@ class Headers {
       for (const [key, value] of headers) {
         res.header(key, value);
       }
-    } else {
-      throw new Error("Unsupported response object");
     }
   }
 

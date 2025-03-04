@@ -12,12 +12,42 @@ import { MemoryStore, MongoStore, RedisStore } from "./store";
 import { HeadersType, limiterOptions, LoggerClass, Store } from "../lib/types";
 import { FastifyReply, FastifyRequest } from "fastify";
 
+/**
+ * Core Rate Limiting Middleware Class
+ */
 export class RateLimiterMiddleware {
+  /**
+   * @private
+   * @type {limiterOptions}
+   * Options for rate limiting.
+   */
   private options: limiterOptions;
+
+  /**
+   * @private
+   * @type {Store}
+   * Storage mechanism for tracking request counts.
+   */
   private store: Store;
+
+  /**
+   * @private
+   * @type {Headers}
+   * Manages setting rate limit headers.
+   */
   private headers: Headers;
+
+  /**
+   * @private
+   * @type {LoggerClass | undefined}
+   * Logger instance for logging rate-limiting events.
+   */
   private logger?: LoggerClass;
 
+  /**
+   * Initializes a new instance of the RateLimiterMiddleware.
+   * @param {limiterOptions} options - Configuration options for the rate limiter.
+   */
   constructor(options: limiterOptions) {
     this.options = {
       skipFailedRequests: DEFAULT_SKIP_FAILED_REQUESTS,
@@ -28,7 +58,6 @@ export class RateLimiterMiddleware {
     };
 
     this.store = this.initializeStore();
-
     this.headers = new Headers(this.options.headersType as HeadersType);
 
     if (this.options.logs) {
@@ -37,6 +66,12 @@ export class RateLimiterMiddleware {
     }
   }
 
+  /**
+   * Initializes the appropriate store (Redis, MongoDB, or in-memory) for rate limiting.
+   * @private
+   * @returns {Store} - The initialized store instance.
+   * @throws {Error} - If an external store is required but not provided.
+   */
   private initializeStore(): Store {
     const { storeType, externalStore, skip } = this.options;
 
@@ -67,6 +102,12 @@ export class RateLimiterMiddleware {
     }
   }
 
+  /**
+   * Processes an incoming request to determine if it should be rate limited.
+   * @param {Request | FastifyRequest} request - The incoming request object.
+   * @param {Response | FastifyReply} response - The outgoing response object.
+   * @returns {Promise<{ shouldBlock: boolean | void; identifierKey: string; }>} - Rate limiting decision and identifier key.
+   */
   async processRequest(
     request: Request | FastifyRequest,
     response: Response | FastifyReply
@@ -113,6 +154,12 @@ export class RateLimiterMiddleware {
     return { shouldBlock, identifierKey };
   }
 
+  /**
+   * Handles response processing, adjusting rate limit data if necessary for failed requests.
+   * @param {string} identifierKey - Unique identifier for the rate-limited entity.
+   * @param {number} statusCode - HTTP status code of the response.
+   * @returns {Promise<void>} - Resolves when processing is complete.
+   */
   async handleResponse(
     identifierKey: string,
     statusCode: number
