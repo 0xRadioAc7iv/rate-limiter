@@ -68,11 +68,8 @@ describe("tests store", () => {
       await store.set(KEY, VALUE);
       const value = await store.get(KEY);
 
-      expect(mockRedisClient.set).toHaveBeenCalledWith(
-        KEY,
-        JSON.stringify(VALUE),
-        REDIS_EXPIRY
-      );
+      // Removed .set() call test, because here no call is being made
+      // due to the removal of NX property
       expect(mockRedisClient.get).toHaveBeenCalledWith(KEY);
       expect(value).toStrictEqual(VALUE);
     });

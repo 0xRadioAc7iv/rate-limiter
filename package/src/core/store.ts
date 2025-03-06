@@ -132,7 +132,7 @@ export class MemoryStore extends BaseStore {
   private startCleanupInterval() {
     const cleanup = () => {
       const now = Date.now();
-      let minRemainingTime = Infinity;
+      let minRemainingTime = this.window;
 
       for (const [ip, rateData] of this.store) {
         if (rateData.requests === 0 || now >= rateData.expires) {
