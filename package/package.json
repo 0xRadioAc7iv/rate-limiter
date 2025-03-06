@@ -2,7 +2,7 @@
   "author": "Manav Gadhiya",
   "name": "@radioac7iv/rate-limiter",
   "description": "Rate limiting middleware library",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "license": "MIT",
   "main": "dist/index.js",
   "types": "types/index.d.ts",

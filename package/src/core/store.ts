@@ -130,14 +130,29 @@ export class MemoryStore extends BaseStore {
    * Starts an interval to clean up expired rate limit entries.
    */
   private startCleanupInterval() {
-    this.interval = setInterval(() => {
+    const cleanup = () => {
       const now = Date.now();
+      let minRemainingTime = Infinity;
+
       for (const [ip, rateData] of this.store) {
-        if (rateData.requests === 0 || now > rateData.expires) {
+        if (rateData.requests === 0 || now >= rateData.expires) {
           this.store.delete(ip);
+        } else {
+          const remainingTime = rateData.expires - now;
+          minRemainingTime = Math.min(minRemainingTime, remainingTime);
         }
       }
-    }, 1000 * this.window);
+
+      const nextInterval =
+        minRemainingTime > 0 ? minRemainingTime : this.window * 1000;
+      if (this.interval) {
+        clearInterval(this.interval);
+      }
+
+      this.interval = setTimeout(cleanup, nextInterval);
+    };
+
+    cleanup();
   }
 
   async set(key: string, value: RateLimitDataType) {
@@ -168,7 +183,6 @@ export class RedisStore extends BaseStore {
   async set(key: string, value: RateLimitDataType) {
     await this.store.set(key, JSON.stringify(value), {
       EX: this.window,
-      NX: true,
     });
   }
 
