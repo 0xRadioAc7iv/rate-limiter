@@ -6,9 +6,9 @@ A lightweight and efficient rate-limiting library for Node.js, designed to help 
 
 - ✅ In-memory, Redis & Mongo Support
 - ✅ Dynamic Rate Limiting
-- ✅ Supports Express, Fastify & NestJS (Coming Soon!)
+- ✅ Supports Express, Fastify & NestJS
 
-## 🚀 Setup
+## Setup
 
 ### Installation
 
@@ -47,18 +47,14 @@ app.listen(3000, () => {
 
 Detailed usage, configuration options, and examples are available in the official documentation:
 
-🔗 [Read the Docs](https://rate-limiter.0xradioactiv.xyz/)
+[Read the Docs](https://rate-limiter.0xradioactiv.xyz/)
 
 ### 🤝 Contributing
 
 Contributions are welcome! To get started:
 
 1. Fork the repository
-2. Clone your fork:
-
-```bash
-git clone https://github.com/0xRadioAc7iv/rate-limiter.git
-```
+2. Clone your fork
 
 3. Install dependencies:
 
@@ -84,6 +80,8 @@ git commit -m "Add new feature"
 git push origin feature-name
 ```
 
+Read the full Contribution Guidelines [here](./CONTRIBUTING.md)
+
 ### 🧪 Testing
 
 To run the tests:
@@ -93,7 +91,7 @@ cd package
 npm test
 ```
 
-To get converage report:
+To get coverage report:
 
 ```bash
 npm run test:cov
