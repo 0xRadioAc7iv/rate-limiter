@@ -20,8 +20,8 @@
     "lint:fix": "eslint --fix .",
     "test": "",
     "test:cov": "",
-    "link-lib": "npm run build && npm link",
-    "prepublishOnly": "npm run build"
+    "link-lib": "pnpm run build && pnpm link --global",
+    "prepublishOnly": "pnpm run build"
   },
   "keywords": [
     "nodejs",
@@ -43,7 +43,6 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
-    "@types/express": "^5.0.0",
     "eslint": "^9.21.0",
     "express": "^4.11.0",
     "globals": "^16.0.0",
