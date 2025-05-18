@@ -5,7 +5,7 @@ on:
     branches:
       - master
     paths:
-      - "package/**"
+      - "package/package.json"
       - ".github/workflows/publish.yml"
 
 jobs:
