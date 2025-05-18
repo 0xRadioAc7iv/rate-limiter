@@ -181,14 +181,15 @@ export class RedisStore extends BaseStore {
   }
 
   async set(key: string, value: RateLimitDataType) {
-    await this.store.set(key, JSON.stringify(value), {
-      EX: this.window,
-    });
+    await this.store.json.set(key, "$", value);
+    await this.store.expire(key, this.window);
   }
 
   async get(key: string): Promise<RateLimitDataType | undefined> {
-    const data = await this.store.get(key);
-    return data ? (JSON.parse(data) as RateLimitDataType) : undefined;
+    const data = await this.store.json.get(key);
+
+    if (!data) return undefined;
+    return data as RateLimitDataType;
   }
 }
 
