@@ -42,13 +42,13 @@ export interface Store {
 }
 
 /**
- * @typedef {"memory" | "redis" | "mongodb"} StoreType
+ * @type {"memory" | "redis" | "mongodb"} StoreType
  * @description The type of store used for rate limiting.
  */
 export type StoreType = "memory" | "redis" | "mongodb";
 
 /**
- * @typedef StoreClassType
+ * @type StoreClassType
  * @description The type of store class used for rate limiting.
  * @type {Map<string, RateLimitDataType> | RedisClientType | Db}
  */
@@ -58,7 +58,7 @@ export type StoreClassType =
   | Db;
 
 /**
- * @typedef logsOptions
+ * @type logsOptions
  * @property {string} directory - The directory where logs are stored.
  */
 export type logsOptions = {
@@ -66,7 +66,7 @@ export type logsOptions = {
 };
 
 /**
- * @typedef RateLimitOptions
+ * @type RateLimitOptions
  * @property {number} max - The maximum allowed requests.
  * @property {number} window - The time window in seconds.
  */
@@ -76,7 +76,7 @@ export type RateLimitOptions = {
 };
 
 /**
- * @typedef RateLimitDataType
+ * @type RateLimitDataType
  * @property {number} requests - The number of requests made.
  * @property {number} expires - The timestamp when the limit resets.
  */
@@ -86,13 +86,13 @@ export type RateLimitDataType = {
 };
 
 /**
- * @typedef {"legacy" | "draft-6" | "draft-7" | "draft-8"} HeadersType
+ * @type {"legacy" | "draft-6" | "draft-7" | "draft-8"} HeadersType
  * @description The type of headers used for rate limiting.
  */
 export type HeadersType = "legacy" | "draft-6" | "draft-7" | "draft-8";
 
 /**
- * @typedef HeadersArgs
+ * @type HeadersArgs
  * @property {Response} res - The response object.
  * @property {HeadersType} headersType - The type of headers.
  * @property {number} limit - The request limit.
@@ -111,7 +111,7 @@ export type HeadersArgs = {
 };
 
 /**
- * @typedef limiterOptions
+ * @type limiterOptions
  * @property {(request: Request) => string} [key] - A function to determine the key for rate limiting.
  * @property {Array<string>} [skip] - Requests to skip from rate limiting.
  * @property {boolean} [skipFailedRequests] - Whether to skip failed requests.
@@ -136,8 +136,22 @@ export type limiterOptions = {
   externalStore?: RedisClientType | Db;
 };
 
+/**
+ * @type {Request | FastifyRequest} RequestTypes
+ * @description The types of Request supported
+ */
 export type RequestTypes = Request | FastifyRequest;
 
+/**
+ * A function that constructs HTTP response headers for rate limiting.
+ *
+ * @type {HeaderConstructorFunction}
+ * @param {string} limit - The total number of allowed requests in the current window.
+ * @param {string} remaining - The number of requests remaining in the current window.
+ * @param {string} reset - The time at which the current rate limit window resets (typically in UTC timestamp or seconds).
+ * @param {number} window - The duration of the rate limiting window in seconds.
+ * @returns {Record<string, string>} An object representing the HTTP headers to be sent with the response.
+ */
 export type HeaderConstructorFunction = (
   limit: string,
   remaining: string,

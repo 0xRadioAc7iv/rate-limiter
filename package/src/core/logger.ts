@@ -1,8 +1,8 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { Request } from "express";
-import { LoggerClass } from "../lib/types";
-import { FastifyReply, FastifyRequest } from "fastify";
+import { LoggerClass, RequestTypes } from "../lib/types";
+import { FastifyReply } from "fastify";
 
 /**
  * @class Logger
@@ -25,10 +25,7 @@ export class Logger implements LoggerClass {
    * @param {Request} request - The request object.
    * @returns {Promise<void>}
    */
-  async log(
-    request: Request | FastifyRequest,
-    reply?: FastifyReply
-  ): Promise<void> {
+  async log(request: RequestTypes, reply?: FastifyReply): Promise<void> {
     const date = new Date();
     const fileName = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}.log`;
     const filePath = path.join(this.directory, fileName);

@@ -40,11 +40,17 @@ export class RateLimiterMiddleware {
    */
   private logger?: LoggerClass;
 
+  /**
+   * @private
+   * @type {HeaderConstructorFunction}
+   * Function that constructs required headers.
+   */
   private headerConstructor: HeaderConstructorFunction;
 
   /**
    * Initializes a new instance of the RateLimiterMiddleware.
    * @param {limiterOptions} options - Configuration options for the rate limiter.
+   * @param {headerConstructor} headerConstructor - Function that constructs required headers.
    */
   constructor(
     options: limiterOptions,
