@@ -43,6 +43,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
+    "@types/express": "^5.0.2",
     "eslint": "^9.21.0",
     "express": "^4.11.0",
     "globals": "^16.0.0",
