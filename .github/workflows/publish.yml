@@ -37,7 +37,7 @@ jobs:
       #   working-directory: package
 
       - name: Publish Package
-        run: pnpm publish
+        run: pnpm publish --no-git-checks
         working-directory: package
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_SECRET }}
