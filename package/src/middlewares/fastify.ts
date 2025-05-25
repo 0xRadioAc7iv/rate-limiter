@@ -2,6 +2,7 @@ import fastifyPlugin from "fastify-plugin";
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { limiterOptions } from "../lib/types";
 import { RateLimiterMiddleware } from "../core/limiter";
+import { createHeaderConstructor } from "../utils";
 
 declare module "fastify" {
   interface FastifyRequest {
@@ -23,7 +24,10 @@ async function rateLimitingMiddleware(
   fastify: FastifyInstance,
   options: limiterOptions
 ) {
-  const limiter = new RateLimiterMiddleware(options);
+  const headerConstructor = createHeaderConstructor(
+    options.headersType || "legacy"
+  );
+  const limiter = new RateLimiterMiddleware(options, headerConstructor);
   const identifierMap = new Map<string, string>();
 
   fastify.addHook(

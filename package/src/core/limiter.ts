@@ -1,16 +1,19 @@
 import { Request, Response } from "express";
 import {
-  DEFAULT_RATE_LIMIT,
   DEFAULT_RATE_LIMIT_HEADERS_TYPE,
-  DEFAULT_RATE_WINDOW,
   DEFAULT_SKIP_FAILED_REQUESTS,
   DEFAULT_STATUS_CODE,
 } from "../lib/constants";
-import { Headers } from "./headers";
 import { Logger } from "./logger";
-import { MemoryStore, MongoStore, RedisStore } from "./store";
-import { HeadersType, limiterOptions, LoggerClass, Store } from "../lib/types";
+import {
+  HeaderConstructorFunction,
+  HeadersType,
+  limiterOptions,
+  LoggerClass,
+  Store,
+} from "../lib/types";
 import { FastifyReply, FastifyRequest } from "fastify";
+import { createStore, extractIncomingRequestData, setHeaders } from "../utils";
 
 /**
  * Core Rate Limiting Middleware Class
@@ -32,23 +35,21 @@ export class RateLimiterMiddleware {
 
   /**
    * @private
-   * @type {Headers}
-   * Manages setting rate limit headers.
-   */
-  private headers: Headers;
-
-  /**
-   * @private
    * @type {LoggerClass | undefined}
    * Logger instance for logging rate-limiting events.
    */
   private logger?: LoggerClass;
 
+  private headerConstructor: HeaderConstructorFunction;
+
   /**
    * Initializes a new instance of the RateLimiterMiddleware.
    * @param {limiterOptions} options - Configuration options for the rate limiter.
    */
-  constructor(options: limiterOptions) {
+  constructor(
+    options: limiterOptions,
+    headerConstructor: HeaderConstructorFunction
+  ) {
     this.options = {
       skipFailedRequests: DEFAULT_SKIP_FAILED_REQUESTS,
       statusCode: DEFAULT_STATUS_CODE,
@@ -57,48 +58,16 @@ export class RateLimiterMiddleware {
       ...options,
     };
 
-    this.store = this.initializeStore();
-    this.headers = new Headers(this.options.headersType as HeadersType);
+    this.store = createStore(
+      options.storeType || "memory",
+      options.externalStore,
+      options.skip
+    );
+    this.headerConstructor = headerConstructor;
 
     if (this.options.logs) {
       this.logger = new Logger(this.options.logs.directory);
       this.logger.createDirectoryIfDoesNotExist(this.options.logs.directory);
-    }
-  }
-
-  /**
-   * Initializes the appropriate store (Redis, MongoDB, or in-memory) for rate limiting.
-   * @private
-   * @returns {Store} - The initialized store instance.
-   * @throws {Error} - If an external store is required but not provided.
-   */
-  private initializeStore(): Store {
-    const { storeType, externalStore, skip } = this.options;
-
-    if (storeType === "redis") {
-      if (!externalStore || !("get" in externalStore))
-        throw new Error(
-          "Configured Redis as Store but no Redis Store provided."
-        );
-
-      return new RedisStore(
-        DEFAULT_RATE_LIMIT,
-        DEFAULT_RATE_WINDOW,
-        externalStore
-      );
-    } else if (storeType === "mongodb") {
-      if (!externalStore || !("collection" in externalStore))
-        throw new Error(
-          "Configured Mongo as Store but no Mongo Store provided."
-        );
-
-      return new MongoStore(
-        DEFAULT_RATE_LIMIT,
-        DEFAULT_RATE_WINDOW,
-        externalStore
-      );
-    } else {
-      return new MemoryStore(DEFAULT_RATE_LIMIT, DEFAULT_RATE_WINDOW, skip);
     }
   }
 
@@ -116,7 +85,7 @@ export class RateLimiterMiddleware {
     identifierKey: string;
   }> {
     const { max, window, requestTime, identifierKey, rateData } =
-      await this.headers.setHeadersData(
+      await extractIncomingRequestData(
         this.options.limitOptions,
         request,
         this.options.key,
@@ -127,15 +96,17 @@ export class RateLimiterMiddleware {
       return { shouldBlock: false, identifierKey };
     }
 
-    this.headers.setHeaders({
-      res: response,
-      headersType: this.options.headersType as HeadersType,
-      limit: max,
-      requests: rateData?.requests || 1,
-      expires: rateData?.expires || requestTime + window * 1000,
-      window,
-      requestTime,
-    });
+    setHeaders(
+      {
+        res: response,
+        limit: max,
+        requests: rateData?.requests || 1,
+        expires: rateData?.expires || requestTime + window * 1000,
+        window,
+        requestTime,
+      },
+      this.headerConstructor
+    );
 
     if (this.logger) this.logger.log(request);
 

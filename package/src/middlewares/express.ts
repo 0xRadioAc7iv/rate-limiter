@@ -1,6 +1,7 @@
 import { RequestHandler } from "express";
 import { limiterOptions } from "../lib/types";
 import { RateLimiterMiddleware } from "../core/limiter";
+import { createHeaderConstructor } from "../utils";
 
 /**
  * Express middleware for rate limiting.
@@ -8,7 +9,10 @@ import { RateLimiterMiddleware } from "../core/limiter";
  * @returns {RequestHandler} Express middleware function.
  */
 export const expressRateLimiter = (options: limiterOptions): RequestHandler => {
-  const limiter = new RateLimiterMiddleware(options);
+  const headerConstructor = createHeaderConstructor(
+    options.headersType || "legacy"
+  );
+  const limiter = new RateLimiterMiddleware(options, headerConstructor);
 
   /**
    * Rate limiter middleware function.
@@ -22,18 +26,9 @@ export const expressRateLimiter = (options: limiterOptions): RequestHandler => {
 
       if (shouldBlock) return;
 
-      /* eslint-disable */
-      const originalEnd = response.end;
-      response.end = function (
-        this: typeof response,
-        chunk?: any,
-        encodingOrCallback?: string | (() => void),
-        callback?: () => void
-      ) {
-        limiter.handleResponse(identifierKey, response.statusCode);
-        return originalEnd.apply(this, arguments as any);
-      };
-      /* eslint-enable */
+      response.on("close", () =>
+        limiter.handleResponse(identifierKey, response.statusCode)
+      );
 
       next();
     } catch (error) {

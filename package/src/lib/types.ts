@@ -103,7 +103,6 @@ export type HeadersType = "legacy" | "draft-6" | "draft-7" | "draft-8";
  */
 export type HeadersArgs = {
   res: Response | FastifyReply;
-  headersType: HeadersType;
   limit: number;
   requests: number;
   expires: number;
@@ -136,3 +135,12 @@ export type limiterOptions = {
   storeType?: StoreType;
   externalStore?: RedisClientType | Db;
 };
+
+export type RequestTypes = Request | FastifyRequest;
+
+export type HeaderConstructorFunction = (
+  limit: string,
+  remaining: string,
+  reset: string,
+  window: number
+) => Record<string, string>;
