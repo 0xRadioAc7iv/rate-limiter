@@ -5,7 +5,7 @@ on:
     branches:
       - master
     paths:
-      - "package/package.json"
+      - "package/pnpm-lock.yaml"
       - ".github/workflows/publish.yml"
 
 jobs:
