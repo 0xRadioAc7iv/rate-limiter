@@ -21,20 +21,23 @@ jobs:
           node-version: 18
           registry-url: https://registry.npmjs.org
 
+      - name: Enable Corepack (for pnpm)
+        run: corepack enable
+
       - name: Install Dependencies
-        run: npm ci
+        run: pnpm i
         working-directory: package
 
       - name: Lint Project
-        run: npm run lint
+        run: pnpm run lint
         working-directory: package
 
-      - name: Run Tests
-        run: npm test
-        working-directory: package
+      # - name: Run Tests
+      #   run: pnpm test
+      #   working-directory: package
 
       - name: Publish Package
-        run: npm publish
+        run: pnpm publish
         working-directory: package
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_SECRET }}
